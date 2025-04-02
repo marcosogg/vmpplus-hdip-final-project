@@ -1,0 +1,150 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# VMP PLUS Project Instructions (LLM Edition)
+
+**Objective:** Follow these guidelines precisely to build the Vendor Management Programme (VMP PLUS). This document provides the foundational rules and structure applicable to all development tasks for this application.
+
+**Execution Model:**
+1.  You will receive instructions incrementally, step-by-step.
+2.  **Write the complete code for every file requested in each step.** Do not provide partial snippets unless specifically asked. Output full file contents when creating or modifying files.
+3.  **Complete each task fully and correctly** according to the instructions before indicating completion.
+4.  **Adhere strictly to all rules** defined in this document throughout the development process.
+
+**Context Tags:** You will encounter `<ai_context>` tags within some code examples or instructions. These tags provide specific context relevant to that piece of code or task to aid your understanding. They are informational only and should not be included in the final code output.
+
+## 1. Overview
+
+VMP PLUS is a focused academic project designed to demonstrate fundamental full-stack web development capabilities. The application functions as a vendor management system, enabling users to manage vendors, associated documents, and contracts through a clean and simple user interface. The primary goal is clear, functional code demonstrating core concepts.
+
+## 2. Technology Stack
+
+Utilize the following technologies exclusively:
+
+-   **Frontend Framework:** Vite + React
+-   **Language:** TypeScript
+-   **Styling:** Tailwind CSS
+-   **UI Components:** shadcn/ui (Initialize and use components as needed per instructions)
+-   **Backend:** Supabase (for Authentication, Database, and Storage features)
+-   **Deployment:** Vercel (Target platform, influences environment variable setup)
+
+## 3. Project Structure
+
+Organize all code according to this structure. Create directories and files exactly as specified in the instructions.
+
+```plaintext
+.
+├── db/                  # Database setup scripts (if required by specific steps)
+├── public/              # Static assets (favicon, images, etc.)
+├── src/                 # Main source code folder
+│   ├── components/      # Reusable UI components
+│   │   ├── ui/          # Generic UI components (populated by shadcn/ui init)
+│   │   ├── layout/      # Layout structure components (e.g., Navbar, Sidebar)
+│   │   ├── vendor/      # Components specific to Vendor features
+│   │   ├── contract/    # Components specific to Contract features
+│   │   ├── document/    # Components specific to Document features
+│   │   └── auth/        # Components specific to Authentication
+│   ├── pages/           # Page-level components (routed views)
+│   │   ├── auth/        # Auth pages (Login, Signup)
+│   │   ├── vendor/      # Vendor management pages (List, Detail, Create)
+│   │   ├── contract/    # Contract management pages
+│   │   └── dashboard/   # Main dashboard page
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Library code, external service clients
+│   │   ├── api/         # Functions interacting with the backend (Supabase)
+│   │   └── supabase.ts  # Supabase client configuration
+│   ├── types/           # TypeScript type definitions
+│   ├── utils/           # Utility functions (general purpose helpers)
+│   ├── schemas/         # Data validation schemas (using Zod)
+│   ├── router.tsx       # Application routing configuration
+│   ├── App.tsx          # Main application component (layout, routes)
+│   └── main.tsx         # Application entry point (renders App)
+├── .env                 # Local environment variables (DO NOT COMMIT)
+├── .env.example         # Example environment variables (for repository)
+├── .gitignore           # Specifies intentionally untracked files
+├── index.html           # Main HTML entry point (Vite)
+├── package.json         # Project dependencies and scripts
+├── postcss.config.js    # PostCSS configuration (for Tailwind)
+├── tailwind.config.js   # Tailwind CSS configuration
+└── tsconfig.json        # TypeScript configuration
+```
+
+## 4. General Rules & Process
+
+**Mandatory Compliance:** Adherence to these rules is required for all generated code and file structures.
+
+**Step Completion & Validation:**
+-   After completing all tasks within a given instruction step, **you MUST mark the step's checkbox `[ ]` as complete: `[x]`** in the corresponding tracking document or context provided.
+-   **User Validation:** After you mark a step complete `[x]`, the process assumes **user validation will occur**. Await the next instruction; do not proceed automatically.
+-   **Immutability:** Completed steps (marked `[x]`) **must not be modified** in subsequent steps unless explicitly instructed to do so by the user.
+
+### 4.1. File and Naming Conventions
+
+-   **Files:** Use `kebab-case` (e.g., `vendor-list.tsx`, `use-auth.ts`).
+-   **Components:** Use `PascalCase` for React component names (e.g., `VendorList`, `UserProfile`).
+-   **Functions/Variables:** Use `camelCase` (e.g., `getVendorById`, `isLoading`).
+-   **Directories:** Use `kebab-case` for new directories you create (unless specified otherwise, like `ui` from shadcn).
+-   **Organization:** Place files in the appropriate directories as defined in the Project Structure (Section 3).
+-   **File Size:** Keep individual file sizes manageable, ideally under 300 lines of code, by separating concerns.
+
+### 4.2. Code Style
+
+-   **Components:** Use **functional components** with React Hooks. Do not use class components.
+-   **TypeScript:** Utilize TypeScript effectively. **Strictly avoid using the `any` type.** Define specific types or interfaces for all data structures.
+-   **Functions:** Keep functions small, focused on a single responsibility, and clearly named.
+-   **Comments:** Add brief comments only for complex logic sections. Prioritize clear, self-documenting code through good naming.
+-   **Formatting:** Maintain consistent indentation and formatting (aligning with Prettier standards if configured, otherwise maintain internal consistency).
+
+### 4.3. TypeScript Rules
+
+-   **Definitions:** Create specific `interface` or `type` definitions for all data objects (API responses, form values, etc.).
+-   **Location:** Store all shared type definitions within the `src/types/` directory.
+-   **Organization:** Group related types within files named after the domain (e.g., `src/types/vendor.ts`, `src/types/contract.ts`). Export types as needed.
+-   **Naming:** Use descriptive `PascalCase` names for types (e.g., `Vendor`, `ContractDocument`, `VendorFormData`).
+-   **Explicitness:** Always define types for function parameters and return values.
+
+**Example Type Definition (`src/types/vendor.ts`):**
+```typescript
+export interface Vendor {
+  id: string; // Typically UUID from Supabase
+  name: string;
+  contact_email: string; // Example field
+  status: 'active' | 'inactive' | 'pending'; // Example status enum
+  created_at: string; // ISO 8601 timestamp string
+  updated_at: string; // ISO 8601 timestamp string
+}
+
+// Example type for form data, omitting DB-generated fields
+export type VendorFormData = Omit<Vendor, 'id' | 'created_at' | 'updated_at'>;
+```
+
+### 4.4. Environment Variables
+
+-   **Storage:** All secret keys and environment-specific configurations (like Supabase URL and Anon Key) **must** be stored in a `.env` file at the project root.
+-   **Vite Prefix:** Environment variables intended for frontend access **must** be prefixed with `VITE_` (e.g., `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+-   **Security:** The `.env` file **must never** be committed to version control. Ensure it is listed in `.gitignore`.
+-   **Example File:** Create and maintain a `.env.example` file in the repository root. This file should list all required environment variables with placeholder values.
+
+**Example `.env.example` content:**
+```plaintext
+VITE_SUPABASE_URL=your-supabase-url-here
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
+```
+
+### 4.5. Implementation Approach
+
+-   **Simplicity (KISS):** Implement the most straightforward solution that meets the requirements of each step. Avoid premature optimization or overly complex patterns.
+-   **Functionality First:** Prioritize getting the core functionality working correctly before refining UI details or adding minor enhancements.
+-   **Incremental Build:** Develop the application piece by piece, ensuring each part works before moving to the next instruction.
+-   **Adherence:** Follow the specific requirements of each step precisely.
+
+### 4.6. Error Handling
+
+-   **API Calls:** Implement basic error handling for all asynchronous operations, especially interactions with the Supabase backend (`lib/api/` functions).
+-   **Mechanism:** Use `try...catch` blocks for async functions that can potentially fail.
+-   **User Feedback:** When errors occur (e.g., failed data fetching, form submission errors), display clear, user-friendly error messages in the UI (e.g., using toasts or inline messages).
+-   **Logging:** Include simple `console.error()` logging for caught errors to aid debugging during development. Keep logging concise.
+
+**Final Reminder:** This project emphasizes demonstrating core full-stack principles with clean, functional, and maintainable code following modern web standards. Focus on fulfilling the requirements of each step accurately and adhering to these established rules.

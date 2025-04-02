@@ -1,663 +1,1158 @@
-# Cursor-AI-Optimized Implementation Plan for VMP PLUS
+# IMPORTANT: Tailwind CSS v4 PostCSS Integration Error
 
-> **Reference Documents**:
-> - `general.mdc`: General project guidelines and rules
-> - `backend.mdc`: Backend implementation guidelines for Supabase
-> - `frontend.mdc`: Frontend UI development guidelines
+## Error Description
 
-## Project Setup
+During the project setup phase, we encountered an error related to Tailwind CSS v4 and its PostCSS integration:
 
-### Step 1a: Initialize Vite + React + TypeScript
-- **Task**: Create new Vite React + TypeScript project
-- **Reference**: See `general.mdc#tech-stack` for technology choices
-- **User Instructions**: 
-  1. Run: `npm create vite@latest vmp-plus -- --template react-ts`
-  2. Change to project directory: `cd vmp-plus`
-  3. Install core dependencies: `npm install`
-- **Validation**:
-  - [ ] Project structure matches `general.mdc#project-structure`
-  - [ ] TypeScript and React dependencies are installed
-  - [ ] Project builds without errors
-
-### Step 1b: Add React Router
-- **Task**: Add React Router for page navigation
-- **Reference**: See `frontend.mdc#router-configuration` for final implementation
-- **User Instructions**: Run: `npm install react-router-dom`
-- **File Operations**:
-  - **src/main.tsx**: Update to include BrowserRouter
-- **Validation**:
-  - [ ] Router is properly configured
-  - [ ] Basic navigation works
-  - [ ] TypeScript types are properly set up
-
-### Step 2a: Configure Tailwind CSS
-- **Task**: Install and configure Tailwind CSS
-- **Reference**: See `frontend.mdc#ui-design-guidelines` for styling conventions
-- **User Instructions**: 
-  1. Run: `npm install -D tailwindcss postcss autoprefixer`
-  2. Initialize config: `npx tailwindcss init -p`
-- **File Operations**:
-  - **tailwind.config.js**: Configure content paths
-  - **src/index.css**: Add Tailwind directives
-- **Validation**:
-  - [ ] Tailwind classes are working
-  - [ ] Color scheme matches guidelines
-  - [ ] Build process includes CSS
-
-### Step 2b: Add Common UI Dependencies
-- **Task**: Add UI component libraries
-- **Reference**: See `frontend.mdc#components` for component guidelines
-- **User Instructions**: Run: `npm install lucide-react @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-separator`
-- **Validation**:
-  - [ ] All dependencies install correctly
-  - [ ] Components can be imported
-  - [ ] TypeScript types are available
-
-### Step 3a: Create Base Layout Component
-- **Task**: Create minimal layout with header and main content area
-- **Reference**: See `frontend.mdc#layout` for layout guidelines
-- **File Operations**:
-  - **src/components/layout/main-layout.tsx**: Create new file with simple layout
-- **Validation**:
-  - [ ] Layout follows naming conventions (kebab-case)
-  - [ ] Component uses TypeScript properly
-  - [ ] Layout is responsive
-
-### Step 3b: Create Navigation Component
-- **Task**: Create basic navigation bar
-- **Reference**: See `frontend.mdc#components` for navigation examples
-- **File Operations**:
-  - **src/components/ui/navigation-bar.tsx**: Create with basic navigation items
-- **Validation**:
-  - [ ] Navigation follows naming conventions
-  - [ ] Links are properly typed
-  - [ ] Component is responsive
-
-### Step 3c: Set Up Router Configuration
-- **Task**: Create router configuration with placeholder routes
-- **Reference**: See `frontend.mdc#router-configuration` for complete setup
-- **File Operations**:
-  - **src/router.tsx**: Create with base routes (home, login, etc)
-  - **src/app.tsx**: Update to use router
-- **Validation**:
-  - [ ] Routes match application structure
-  - [ ] Navigation works correctly
-  - [ ] 404 handling is implemented
-
-## Supabase Integration
-
-### Step 4a: Install Supabase Client
-- **Task**: Add Supabase client library
-- **Reference**: See `backend.mdc#supabase-configuration` for setup details
-- **User Instructions**: Run: `npm install @supabase/supabase-js`
-- **Validation**:
-  - [ ] Supabase client can be imported
-  - [ ] TypeScript types are available
-  - [ ] Version matches project requirements
-
-### Step 4b: Set Up Environment Variables
-- **Task**: Create environment files for Supabase credentials
-- **Reference**: See `backend.mdc#client-setup` for required variables
-- **File Operations**:
-  - **.env**: Create with empty variables
-  - **.env.example**: Create example file
-- **User Instructions**: Add your Supabase URL and anon key to .env:
 ```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+[plugin:vite:css] [postcss] It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package, so to continue using Tailwind CSS with PostCSS you'll need to install `@tailwindcss/postcss` and update your PostCSS configuration.
 ```
-- **Validation**:
-  - [ ] Environment variables are properly typed
-  - [ ] .env is in .gitignore
-  - [ ] .env.example exists with placeholders
 
-### Step 4c: Create Supabase Client
-- **Task**: Create a typed Supabase client
-- **Reference**: See `backend.mdc#client-setup` for implementation example
-- **File Operations**:
-  - **src/lib/supabase.ts**: Create client initialization file
-- **Validation**:
-  - [ ] Client is properly typed
-  - [ ] Error handling is implemented
-  - [ ] Environment variables are validated
+## Cause
 
-## Authentication
+This error occurred because:
 
-### Step 5a: Create Auth Types
-- **Task**: Create TypeScript types for auth
-- **Reference**: See `backend.mdc#authentication-implementation` for type definitions
-- **File Operations**:
-  - **src/types/auth.ts**: Create types for user, session, etc.
-- **Validation**:
-  - [ ] Types match Supabase auth schema
-  - [ ] Custom types are properly defined
-  - [ ] Types are properly exported
+1. **Tailwind CSS v4 Architecture Change**: In Tailwind CSS v4, the PostCSS plugin functionality has been moved to a separate package (`@tailwindcss/postcss`).
+2. **Outdated Configuration**: Our `postcss.config.js` was still using the older format that directly referenced `tailwindcss` as a plugin.
 
-### Step 5b: Create Auth Hook (Part 1)
-- **Task**: Create useAuth hook for authentication state
-- **Reference**: See `backend.mdc#authentication-hooks` for implementation
-- **File Operations**:
-  - **src/hooks/use-auth.ts**: Create with basic structure
-- **Validation**:
-  - [ ] Hook follows naming conventions
-  - [ ] State management is implemented
-  - [ ] TypeScript types are correct
+## Solution
 
-### Step 5c: Create Auth Hook (Part 2)
-- **Task**: Add sign-in and sign-up functions to hook
-- **Reference**: See `backend.mdc#authentication-hooks` for complete implementation
-- **File Operations**:
-  - **src/hooks/use-auth.ts**: Extend with signIn and signUp functions
-- **Validation**:
-  - [ ] Sign-in function works correctly
-  - [ ] Sign-up function works correctly
-  - [ ] Error handling is implemented
-  - [ ] Session management works
+The fix was to update the PostCSS configuration file to reference the new package:
 
-### Step 5d: Create Login Page 
-- **Task**: Create simple login page with email/password
-- **Reference**: See `frontend.mdc#form-implementation` for form examples
-- **File Operations**:
-  - **src/pages/auth/login-page.tsx**: Create with form
-- **Validation**:
-  - [ ] Form validation works
-  - [ ] Error messages are displayed
-  - [ ] Successful login redirects correctly
-  - [ ] Loading states are handled
+```javascript
+// postcss.config.js - CORRECT for Tailwind CSS v4
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {}, // Changed from 'tailwindcss: {}'
+    autoprefixer: {},
+  },
+}
+```
 
-### Step 5e: Create Signup Page
-- **Task**: Create simple signup page
-- **Reference**: See `frontend.mdc#form-implementation` for form examples
-- **File Operations**:
-  - **src/pages/auth/signup-page.tsx**: Create with form
-- **Validation**:
-  - [ ] Form validation works
-  - [ ] Error messages are displayed
-  - [ ] Successful signup creates profile
-  - [ ] Loading states are handled
+## Prevention Strategy
 
-### Step 5f: Create Logout Button
-- **Task**: Create logout functionality
-- **Reference**: See `frontend.mdc#components` for button implementation
-- **File Operations**:
-  - **src/components/ui/logout-button.tsx**: Create component
-- **Validation**:
-  - [ ] Logout function works
-  - [ ] User is redirected after logout
-  - [ ] Session is properly cleared
+To prevent similar errors throughout the project development:
 
-### Step 6a: Set Up Profiles Table in Supabase
-- **Task**: Create SQL for profiles table
-- **Reference**: See `backend.mdc#profiles-table` for schema and policies
-- **File Operations**:
-  - **db/create_profiles_table.sql**: Create SQL file
-- **User Instructions**: 
-  1. Create the profiles table in Supabase using the schema defined in backend.mdc
-  2. Execute the SQL in Supabase SQL Editor
-- **Validation**:
-  - [ ] Table structure matches schema
-  - [ ] RLS policies are implemented
-  - [ ] Foreign key constraints work
-  - [ ] Triggers are properly set up
+1. Always check the dependency versions in `package.json` before modifying configuration files
+2. When using Tailwind CSS v4:
+   - Use `@tailwindcss/postcss` (not `tailwindcss`) in the PostCSS config
+   - Use `@tailwindcss/vite` in Vite config (not a direct Tailwind plugin)
+3. Refer to the official Tailwind CSS v4 documentation when implementing features that interact with the styling system
 
-### Step 6b: Extend Auth Hook for Roles
-- **Task**: Add role fetching to auth hook
-- **Reference**: See `backend.mdc#authentication-hooks` for role implementation
-- **File Operations**:
-  - **src/hooks/use-auth.ts**: Add getUserRole function
-- **Validation**:
-  - [ ] Role is fetched on login
-  - [ ] Role updates are reflected
-  - [ ] Error handling works
-  - [ ] TypeScript types are correct
+---
 
-### Step 6c: Create Protected Routes
-- **Task**: Add route protection based on auth state
-- **Reference**: See `frontend.mdc#router-configuration` for protection examples
-- **File Operations**:
-  - **src/components/auth/protected-route.tsx**: Create component
-  - **src/router.tsx**: Update to use protected routes
-- **Validation**:
-  - [ ] Unauthenticated users are redirected
-  - [ ] Loading states are handled
-  - [ ] Role-based access works
-  - [ ] Navigation guards work correctly
+Okay, here is the revised `VMP PLUS Implementation Plan` incorporating the adjustments to ensure strict alignment with the detailed rules documents. Changes focus on correcting specific code snippets, clarifying type definitions, explicitly referencing the detailed rules for API implementations, and strengthening validation criteria.
 
-## Vendor Management
+# VMP PLUS Implementation Plan (Revised)
 
-### Step 7a: Set Up Vendors Table in Supabase
-- **Task**: Create SQL for vendors table
-- **Reference**: See `backend.mdc#vendors-table` for schema and policies
-- **File Operations**:
-  - **db/create_vendors_table.sql**: Create SQL file
-- **User Instructions**: 
-  1. Create the vendors table in Supabase using the schema defined in backend.mdc
-  2. Execute the SQL in Supabase SQL Editor
-- **Validation**:
-  - [ ] Table structure matches schema
-  - [ ] RLS policies are implemented
-  - [ ] Indexes are created
-  - [ ] Constraints are properly set
+This implementation plan is organized into sequential phases, each containing clearly defined steps. Follow the exact order and complete each step fully before proceeding to the next. Adherence to the rules defined in `general.mdc`, `auth-rules.md`, `frontend-rules.md`, and `backend-rules.md` is mandatory.
 
-### Step 7b: Create Vendor Types
-- **Task**: Create TypeScript types for vendors
-- **Reference**: See `general.mdc#typescript-rules` for type guidelines
-- **File Operations**:
-  - **src/types/vendor.ts**: Create with Vendor interface
-- **Validation**:
-  - [ ] Types match database schema
-  - [ ] Form types are defined
-  - [ ] Types are properly exported
-  - [ ] TypeScript validation passes
+**Important Note on PowerShell Commands:** When executing terminal commands that involve changing directories and then running another command (e.g., `cd <directory>` followed by `npx ...`), use a semicolon (`;`) as the separator, not `&&`. Example: `cd C:\path\to\project; npx command`.
 
-### Step 7c: Create Vendor API Functions (Part 1)
-- **Task**: Create functions for fetching vendors
-- **Reference**: See `backend.mdc#api-implementation-rules` for function structure
-- **File Operations**:
-  - **src/lib/api/vendors.ts**: Create with getVendors and getVendorById
-- **Validation**:
-  - [ ] Functions are properly typed
-  - [ ] Error handling is implemented
-  - [ ] Response format is consistent
-  - [ ] Query optimization is applied
+C:\Dev\hdip\vmp-plus-final-project\vmpplus-hdip-final-project\
 
-### Step 7d: Create Vendor API Functions (Part 2)
-- **Task**: Create functions for creating and updating vendors
-- **Reference**: See `backend.mdc#api-implementation-rules` for function structure
-- **File Operations**:
-  - **src/lib/api/vendors.ts**: Add createVendor and updateVendor
-- **Validation**:
-  - [ ] Functions are properly typed
-  - [ ] Validation is implemented
-  - [ ] Error handling works
-  - [ ] Response format is consistent
+## Phase 1: Project Setup and Core Infrastructure
 
-### Step 7e: Create Vendor List Page
-- **Task**: Create page to display vendors
-- **Reference**: See `frontend.mdc#page-structure` for implementation example
-- **File Operations**:
-  - **src/pages/vendor/vendor-list.tsx**: Create with table layout
-- **Validation**:
-  - [ ] Data fetching works
-  - [ ] Loading states are handled
-  - [ ] Error states are handled
-  - [ ] Table is properly styled
+### Step 1.1: Initialize Vite with React and TypeScript
+**Task:** Create a new Vite project with React and TypeScript template.
+**Commands:**
+```bash
+npm create vite@latest -- --template react-ts
+npm install
+```
+**Validation Criteria:**
+[x] Project directory structure matches `general.mdc#project-structure`
+[x] Project builds successfully with `npm run dev`
+[x] TypeScript configuration exists and is properly set up
+[x] React components can be created and rendered
 
-### Step 7f: Create Vendor Form Component
-- **Task**: Create form for adding/editing vendors
-- **Reference**: See `frontend.mdc#form-implementation` for form examples
-- **File Operations**:
-  - **src/pages/vendor/vendor-form.tsx**: Create with form fields
-- **Validation**:
-  - [ ] Form validation works
-  - [ ] Error messages are displayed
-  - [ ] Submit handling works
-  - [ ] Loading states are handled
+### Step 1.2: Install and Configure Tailwind CSS
+**Task:** Add Tailwind CSS to the project.
+**Commands:**
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+**File Operations:**
+- Create or modify `tailwind.config.js`:
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+- Add Tailwind directives to `src/index.css`:
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+**Validation Criteria:**
+[x] Tailwind CSS classes apply correctly to elements
+[x] Build process includes CSS processing
+[x] Configuration files exist in the correct locations
 
-### Step 8a: Add Search Component to Vendor List
-- **Task**: Add search input to filter vendors by name
-- **Reference**: See `frontend.mdc#components` for search implementation
-- **File Operations**:
-  - **src/components/vendor/vendor-search.tsx**: Create component
-  - **src/pages/vendor/vendor-list.tsx**: Update to include search
-- **Validation**:
-  - [ ] Search updates in real-time
-  - [ ] Results are filtered correctly
-  - [ ] UI is responsive
-  - [ ] Accessibility is implemented
+### Step 1.3: Install React Router
+**Task:** Add routing capabilities to the application.
+**Commands:**
+```bash
+npm install react-router-dom
+```
+**File Operations:**
+- Create `src/router.tsx` with basic routes
+- Update `src/App.tsx` to use the router
+- Create placeholder pages for routing testing
+**Validation Criteria:**
+[x] Router is configured with basic routes
+[x] Navigation between routes works correctly
+[x] TypeScript types for router components are properly set
 
-### Step 8b: Add Status Filter to Vendor List
-- **Task**: Add dropdown to filter vendors by status
-- **Reference**: See `frontend.mdc#components` for filter implementation
-- **File Operations**:
-  - **src/components/vendor/status-filter.tsx**: Create component
-  - **src/pages/vendor/vendor-list.tsx**: Update to include filter
-- **Validation**:
-  - [ ] Filter updates correctly
-  - [ ] Combined filtering works
-  - [ ] UI is responsive
-  - [ ] State management works
+### Step 1.4: Create Basic Project Structure
+**Task:** Set up the full directory structure according to project guidelines.
+**File Operations:**
+- Create all required directories:
+  ```
+  src/
+  ├── components/
+  │   ├── ui/
+  │   ├── layout/
+  │   ├── vendor/
+  │   ├── contract/
+  │   ├── document/
+  │   └── auth/
+  ├── pages/
+  │   ├── auth/
+  │   ├── vendor/
+  │   ├── contract/
+  │   └── dashboard/
+  ├── hooks/
+  ├── lib/
+  │   ├── api/
+  │   └── supabase.ts
+  ├── types/
+  ├── utils/
+  ├── schemas/
+  ```
+- Create empty index files in each directory to maintain structure (optional but good practice).
+**Validation Criteria:**
+[x] All directories exist in the correct locations
+[x] Structure follows `general.mdc` project guidelines exactly
+[x] TypeScript paths are configured correctly (if using path aliases)
 
-## Document Management
+### Step 1.5: Setup Environment Variables
+**Task:** Configure environment variables for the project.
+**File Operations:**
+- Create `.env.example` file:
+```
+VITE_SUPABASE_URL=your-supabase-url-here
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
+```
+- Create `.env` (instruct user to add their actual values)
+- Update `.gitignore` to exclude `.env`
+**Validation Criteria:**
+[x] `.env.example` exists with correct variable placeholders
+[x] `.env` is listed in `.gitignore`
+[x] Environment variables can be accessed using `import.meta.env.VITE_*`
 
-### Step 9a: Set Up Storage Bucket in Supabase
-- **Task**: Create SQL for storage permissions
-- **Reference**: See `backend.mdc#document-storage` for bucket setup
-- **File Operations**:
-  - **db/create_storage_bucket.sql**: Create SQL file
-- **User Instructions**: 
-  1. Set up the storage bucket and policies as defined in backend.mdc
-  2. Execute the SQL in Supabase SQL Editor
-  3. Create the bucket in Supabase dashboard
-- **Validation**:
-  - [ ] Bucket is created successfully
-  - [ ] RLS policies are implemented
-  - [ ] Upload permissions work
-  - [ ] Download permissions work
+## Phase 2: UI Infrastructure with shadcn/ui
 
-### Step 9b: Create Document Types
-- **Task**: Create TypeScript types for documents
-- **Reference**: See `general.mdc#typescript-rules` for type guidelines
-- **File Operations**:
-  - **src/types/document.ts**: Create with Document interface
-- **Validation**:
-  - [ ] Types match storage schema
-  - [ ] Metadata types are defined
-  - [ ] Types are properly exported
-  - [ ] TypeScript validation passes
+### Step 2.1: Install shadcn/ui Core Dependencies
+**Task:** Add required dependencies for shadcn/ui components.
+**Commands:**
+```bash
+npm install class-variance-authority clsx tailwind-merge lucide-react
+```
+**Validation Criteria:**
+[x] All dependencies install successfully
+[x] No version conflicts exist
+[x] TypeScript types are available for all dependencies
 
-### Step 9c: Create Document API Functions
-- **Task**: Create functions for document upload/download
-- **Reference**: See `backend.mdc#document-storage` for implementation
-- **File Operations**:
-  - **src/lib/api/documents.ts**: Create with uploadDocument and downloadDocument
-- **Validation**:
-  - [ ] Upload function works
-  - [ ] Download function works
-  - [ ] Error handling is implemented
-  - [ ] Progress tracking works
+### Step 2.2: Install shadcn/ui CLI and Initialize Components
+**Task:** Setup shadcn/ui and add base components.
+**Commands:**
+```bash
+npm install -D @shadcn/ui
+npx shadcn-ui init
+```
+**Configuration Inputs:** (During init process)
+- TypeScript: `yes`
+- Style: `default`
+- Base color: `slate`
+- Global CSS path: `src/index.css`
+- CSS variables: `yes`
+- React Server Components: `no`
+- Components directory: `src/components/ui`
+- Utils directory: `src/lib/utils`
+**Validation Criteria:**
+[x] shadcn/ui is initialized correctly
+[x] Configuration file (`components.json`) exists
+[x] Utility functions are created in the specified location (`src/lib/utils.ts`)
+[x] Component installation commands work
 
-### Step 9d: Create Document Upload Component
-- **Task**: Create UI for document upload
-- **Reference**: See `frontend.mdc#form-implementation` for upload examples
-- **File Operations**:
-  - **src/components/document/document-upload.tsx**: Create component
-- **Validation**:
-  - [ ] File selection works
-  - [ ] Upload progress is shown
-  - [ ] Error handling works
-  - [ ] Success feedback is shown
+### Step 2.3: Add Essential UI Components
+**Task:** Install commonly used shadcn/ui components.
+**Commands:**
+```bash
+npx shadcn-ui add button
+npx shadcn-ui add input
+npx shadcn-ui add form
+npx shadcn-ui add select
+npx shadcn-ui add card
+npx shadcn-ui add table
+npx shadcn-ui add avatar
+npx shadcn-ui add dialog
+npx shadcn-ui add dropdown-menu
+npx shadcn-ui add toast
+```
+**Validation Criteria:**
+[x] All components are installed in `src/components/ui/`
+[x] Components can be imported and used
+[x] Component TypeScript types are available
+[x] Components render correctly with Tailwind styles
 
-### Step 9e: Add Documents to Vendor Detail Page
-- **Task**: Create vendor detail page with document section
-- **Reference**: See `frontend.mdc#page-structure` for page layout
-- **File Operations**:
-  - **src/pages/vendor/vendor-detail.tsx**: Create with document area
-- **Validation**:
-  - [ ] Documents are listed
-  - [ ] Upload works
-  - [ ] Download works
-  - [ ] Delete works
+### Step 2.4: Create Layout Components
+**Task:** Build reusable layout components for the application according to `frontend-rules.md` Rule 9.
+**File Operations:**
+- Create `src/components/layout/main-layout.tsx`:
+  A layout component with header, navigation (sidebar), and main content area. Implement following `frontend-rules.md` Rule 9.
+- Create `src/components/layout/page-header.tsx`:
+  A reusable page header with title and optional actions. Implement following `frontend-rules.md` Rule 9.
+- Create `src/components/layout/sidebar-nav.tsx`:
+  A navigation sidebar with links to main sections (using `NavLink`). Implement following `frontend-rules.md` Rule 11.
+**Validation Criteria:**
+[x] Layout components use shadcn/ui elements appropriately
+[x] Components are properly typed with TypeScript
+[x] Layout is responsive and follows design guidelines in `frontend-rules.md` Rule 10.
+[x] Components accept and correctly use props
+[x] Implementation matches patterns in `frontend-rules.md`.
 
-## Contract Management
+## Phase 3: Supabase Configuration and Core Types
 
-### Step 10a: Set Up Contracts Table in Supabase
-- **Task**: Create SQL for contracts table
-- **Reference**: See `backend.mdc#contracts-table` for schema and policies
-- **File Operations**:
-  - **db/create_contracts_table.sql**: Create SQL file
-- **User Instructions**: 
-  1. Create the contracts table in Supabase using the schema defined in backend.mdc
-  2. Execute the SQL in Supabase SQL Editor
-- **Validation**:
-  - [ ] Table structure matches schema
-  - [ ] RLS policies are implemented
-  - [ ] Foreign keys work
-  - [ ] Indexes are created
+### Step 3.1: Install Supabase Client
+**Task:** Add Supabase client library to the project.
+**Commands:**
+```bash
+npm install @supabase/supabase-js
+```
+**Validation Criteria:**
+- [ ] Supabase client can be imported
+- [ ] TypeScript types are available for Supabase client
+- [ ] No version conflicts exist
 
-### Step 10b: Create Contract Types
-- **Task**: Create TypeScript types for contracts
-- **Reference**: See `general.mdc#typescript-rules` for type guidelines
-- **File Operations**:
-  - **src/types/contract.ts**: Create with Contract interface
-- **Validation**:
-  - [ ] Types match database schema
-  - [ ] Form types are defined
-  - [ ] Types are properly exported
-  - [ ] TypeScript validation passes
+### Step 3.2: Create Supabase Client Configuration
+**Task:** Set up a typed Supabase client instance *exactly* as specified in `backend-rules.md` Rule 3.
+**File Operations:**
+- Create `src/lib/supabase.ts`:
+```typescript
+import { createClient } from '@supabase/supabase-js'
+// Assuming types will be generated here based on backend-rules.md Rule 4
+import { Database } from '@/types/supabase';
 
-### Step 10c: Create Contract API Functions (Part 1)
-- **Task**: Create functions for fetching contracts
-- **Reference**: See `backend.mdc#api-implementation-rules` for function structure
-- **File Operations**:
-  - **src/lib/api/contracts.ts**: Create with getContracts and getContractById
-- **Validation**:
-  - [ ] Functions are properly typed
-  - [ ] Error handling is implemented
-  - [ ] Response format is consistent
-  - [ ] Query optimization is applied
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-### Step 10d: Create Contract API Functions (Part 2)
-- **Task**: Create functions for creating and updating contracts
-- **Reference**: See `backend.mdc#api-implementation-rules` for function structure
-- **File Operations**:
-  - **src/lib/api/contracts.ts**: Add createContract and updateContract
-- **Validation**:
-  - [ ] Functions are properly typed
-  - [ ] Validation is implemented
-  - [ ] Error handling works
-  - [ ] Response format is consistent
+// Validate environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
 
-### Step 10e: Create Contract List Page
-- **Task**: Create page to display contracts
-- **Reference**: See `frontend.mdc#page-structure` for implementation example
-- **File Operations**:
-  - **src/pages/contract/contract-list.tsx**: Create with table layout
-- **Validation**:
-  - [ ] Data fetching works
-  - [ ] Loading states are handled
-  - [ ] Error states are handled
-  - [ ] Table is properly styled
+// Use the Database generic type for full type safety
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+```
+**Validation Criteria:**
+- [ ] Supabase client is correctly initialized *with the `<Database>` generic type*
+- [ ] Environment variables are properly validated
+- [ ] Client is exported and can be imported elsewhere
+- [ ] TypeScript types are correctly applied
+- [ ] Implementation exactly matches `backend-rules.md` Rule 3.
 
-### Step 10f: Create Contract Form Component
-- **Task**: Create form for adding/editing contracts
-- **Reference**: See `frontend.mdc#form-implementation` for form examples
-- **File Operations**:
-  - **src/pages/contract/contract-form.tsx**: Create with form fields
-- **Validation**:
-  - [ ] Form validation works
-  - [ ] Error messages are displayed
-  - [ ] Submit handling works
-  - [ ] Loading states are handled
+### Step 3.2b: Generate Supabase TypeScript Types
+**Task:** Generate TypeScript types for the Supabase database schema.
+**Commands:**
+```bash
+# Install Supabase CLI if not already installed
+npm install supabase --save-dev
 
-### Step 11a: Create Contract Status Util
-- **Task**: Create utility to determine contract status
-- **Reference**: See `frontend.mdc#components` for status implementation
-- **File Operations**:
-  - **src/utils/contract-status.ts**: Create utility function
-- **Validation**:
-  - [ ] Status calculation works
-  - [ ] Edge cases are handled
-  - [ ] Tests are written
-  - [ ] Documentation is added
+# Generate types (replace project-id with actual Supabase project ID)
+npx supabase gen types typescript --project-id your-project-id > src/types/supabase.ts
+```
 
-### Step 11b: Add Status Display to Contract List
-- **Task**: Update contract list to show status
-- **Reference**: See `frontend.mdc#components` for status badge examples
-- **File Operations**:
-  - **src/components/contract/status-badge.tsx**: Create status badge
-  - **src/pages/contract/contract-list.tsx**: Update to show status
-- **Validation**:
-  - [ ] Status is displayed correctly
-  - [ ] Colors match status
-  - [ ] Updates are reflected
-  - [ ] Accessibility is implemented
+**Alternative Manual Type Definition (if CLI generation fails):**
+```typescript
+// src/types/supabase.ts
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-## Dashboard and Polish
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vendors: {
+        Row: {
+          id: string
+          name: string
+          email: string | null
+          phone: string | null
+          address: string | null
+          status: string
+          notes: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          status?: string
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string | null
+          phone?: string | null
+          address?: string | null
+          status?: string
+          notes?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      contracts: {
+        Row: {
+          id: string
+          vendor_id: string
+          title: string
+          description: string | null
+          start_date: string
+          end_date: string
+          value: number
+          status: string
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          vendor_id: string
+          title: string
+          description?: string | null
+          start_date: string
+          end_date: string
+          value?: number
+          status?: string
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          vendor_id?: string
+          title?: string
+          description?: string | null
+          start_date?: string
+          end_date?: string
+          value?: number
+          status?: string
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      documents: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          entity_type: string
+          entity_id: string
+          file_path: string
+          file_type: string | null
+          file_size: number | null
+          uploaded_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          entity_type: string
+          entity_id: string
+          file_path: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          entity_type?: string
+          entity_id?: string
+          file_path?: string
+          file_type?: string | null
+          file_size?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+        }
+      }
+    }
+  }
+}
+```
 
-### Step 12a: Create Dashboard Page Structure
-- **Task**: Create dashboard page layout
-- **Reference**: See `frontend.mdc#page-structure` for dashboard layout
-- **File Operations**:
-  - **src/pages/dashboard/dashboard-page.tsx**: Create with sections
-- **Validation**:
-  - [ ] Layout is responsive
-  - [ ] Components are properly organized
-  - [ ] Loading states work
-  - [ ] Error states are handled
+**Validation Criteria:**
+- [ ] Types are generated successfully from Supabase schema
+- [ ] Generated/defined types match the database schema exactly
+- [ ] Types are properly exported and can be imported
+- [ ] All tables (profiles, vendors, contracts, documents) are represented in the types
 
-### Step 12b: Add Vendor Summary to Dashboard
-- **Task**: Add vendor count component
-- **Reference**: See `frontend.mdc#components` for summary cards
-- **File Operations**:
-  - **src/components/dashboard/vendor-summary.tsx**: Create component
-  - **src/pages/dashboard/dashboard-page.tsx**: Update to include summary
-- **Validation**:
-  - [ ] Data is fetched correctly
-  - [ ] Numbers are accurate
-  - [ ] Updates are reflected
-  - [ ] Loading states work
+### Step 3.2c: Create Profiles Table and API Implementation
+**Task:** Set up the profiles table in Supabase and implement its API functions *exactly* as defined in `backend-rules.md` Rule 1 & 5.
 
-### Step 12c: Add Contract Summary to Dashboard
-- **Task**: Add contract statistics component
-- **Reference**: See `frontend.mdc#components` for summary cards
-- **File Operations**:
-  - **src/components/dashboard/contract-summary.tsx**: Create component
-  - **src/pages/dashboard/dashboard-page.tsx**: Update to include summary
-- **Validation**:
-  - [ ] Statistics are accurate
-  - [ ] Updates are reflected
-  - [ ] Loading states work
-  - [ ] Error states are handled
+**SQL (to be executed in Supabase SQL Editor):**
+```sql
+-- Create profiles table
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email TEXT NOT NULL,
+  full_name TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-## Form Validation and Error Handling
+-- Trigger for updated_at
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-### Step 13a: Add Form Validation - Install Dependencies
-- **Task**: Add Zod for validation
-- **Reference**: See `frontend.mdc#form-implementation` for validation setup
-- **User Instructions**: Run: `npm install zod react-hook-form @hookform/resolvers`
-- **Validation**:
-  - [ ] Dependencies install correctly
-  - [ ] Types are available
-  - [ ] Integration works
-  - [ ] Example validation works
+CREATE TRIGGER update_profiles_updated_at
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
 
-### Step 13b: Add Validation to Vendor Form
-- **Task**: Add schema validation to vendor form
-- **Reference**: See `frontend.mdc#form-implementation` for validation examples
-- **File Operations**:
-  - **src/schemas/vendor.schema.ts**: Create validation schema
-  - **src/pages/vendor/vendor-form.tsx**: Update to use validation
-- **Validation**:
-  - [ ] Schema validates correctly
-  - [ ] Error messages show properly
-  - [ ] Form submission blocked on error
-  - [ ] Custom validations work
+-- RLS Policies
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-### Step 13c: Add Validation to Contract Form
-- **Task**: Add schema validation to contract form
-- **Reference**: See `frontend.mdc#form-implementation` for validation examples
-- **File Operations**:
-  - **src/schemas/contract.schema.ts**: Create validation schema
-  - **src/pages/contract/contract-form.tsx**: Update to use validation
-- **Validation**:
-  - [ ] Schema validates correctly
-  - [ ] Error messages show properly
-  - [ ] Form submission blocked on error
-  - [ ] Date validations work
+-- Users can read their own profile
+CREATE POLICY "Users can read own profile"
+ON profiles FOR SELECT
+USING (auth.uid() = id);
 
-### Step 13d: Add Error Handling to API Calls
-- **Task**: Add try/catch blocks to API functions
-- **Reference**: See `backend.mdc#error-handling-guidelines` for implementation
-- **File Operations**:
-  - **src/lib/api/vendors.ts**: Update with error handling
-  - **src/lib/api/contracts.ts**: Update with error handling
-  - **src/lib/api/documents.ts**: Update with error handling
-- **Validation**:
-  - [ ] Errors are caught properly
-  - [ ] Error messages are user-friendly
-  - [ ] Error states are handled in UI
-  - [ ] Console logging works
+-- Users can update their own profile
+CREATE POLICY "Users can update own profile"
+ON profiles FOR UPDATE
+USING (auth.uid() = id);
+```
 
-## Testing
+**File Operations:**
+- Create `src/lib/api/profiles.ts`:
+```typescript
+import { supabase } from '@/lib/supabase';
+import { handleApiError } from './api-utils';
+import { Database } from '@/types/supabase';
 
-### Step 14a: Setup Testing Framework
-- **Task**: Add Vitest for testing
-- **Reference**: See `general.mdc#testing` for testing guidelines
-- **User Instructions**: Run: `npm install --save-dev vitest @testing-library/react @testing-library/jest-dom jsdom`
-- **File Operations**:
-  - **vitest.config.ts**: Create configuration file
-  - **src/setup-tests.ts**: Create setup file
-- **Validation**:
-  - [ ] Test runner works
-  - [ ] React Testing Library works
-  - [ ] Jest DOM matchers work
-  - [ ] Example test passes
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
-### Step 14b: Write Auth Tests
-- **Task**: Add tests for authentication
-- **Reference**: See `general.mdc#testing` for test patterns
-- **File Operations**:
-  - **src/tests/auth/use-auth.test.tsx**: Create test file
-- **Validation**:
-  - [ ] Sign-in tests pass
-  - [ ] Sign-up tests pass
-  - [ ] Role tests pass
-  - [ ] Error cases are tested
+// Get the current user's profile
+export async function getCurrentProfile() {
+  return handleApiError(
+    supabase
+      .from('profiles')
+      .select('*')
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return data as Profile;
+      })
+  );
+}
 
-### Step 14c: Write Vendor Tests
-- **Task**: Add tests for vendor functions
-- **Reference**: See `general.mdc#testing` for test patterns
-- **File Operations**:
-  - **src/tests/vendor/vendors.test.tsx**: Create test file
-- **Validation**:
-  - [ ] CRUD operations are tested
-  - [ ] List filtering works
-  - [ ] Error cases are tested
-  - [ ] UI components are tested
+// Update the current user's profile
+export async function updateProfile(updates: ProfileUpdate) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error('No authenticated user');
+  
+  return handleApiError(
+    supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return data as Profile;
+      })
+  );
+}
 
-### Step 14d: Write Contract Tests
-- **Task**: Add tests for contract functions
-- **Reference**: See `general.mdc#testing` for test patterns
-- **File Operations**:
-  - **src/tests/contract/contracts.test.tsx**: Create test file
-- **Validation**:
-  - [ ] CRUD operations are tested
-  - [ ] Status calculations work
-  - [ ] Error cases are tested
-  - [ ] UI components are tested
+// Create a profile for a new user (called after signup)
+export async function createProfile(userId: string, email: string) {
+  return handleApiError(
+    supabase
+      .from('profiles')
+      .insert({
+        id: userId,
+        email,
+      })
+      .select()
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return data as Profile;
+      })
+  );
+}
+```
 
-## Deployment
+**Validation Criteria:**
+- [ ] Profiles table is created successfully in Supabase
+- [ ] RLS policies are properly applied
+- [ ] Trigger for `updated_at` works correctly
+- [ ] API functions are implemented following the patterns in `backend-rules.md` Rule 5
+- [ ] Error handling uses the `handleApiError` utility
+- [ ] TypeScript types from `Database` are properly applied
+- [ ] Profile creation is integrated with the signup process
 
-### Step 15a: Create Build Scripts
-- **Task**: Configure build script
-- **Reference**: See `general.mdc#deployment` for build configuration
-- **File Operations**:
-  - **package.json**: Update build scripts
-- **Validation**:
-  - [ ] Build completes successfully
-  - [ ] Output is optimized
-  - [ ] TypeScript checks pass
-  - [ ] Assets are included
+## Phase 4: Vendor Management Implementation
 
-### Step 15b: Create README
-- **Task**: Create documentation
-- **Reference**: See `general.mdc` for project overview
-- **File Operations**:
-  - **README.md**: Create with setup instructions
-- **Validation**:
-  - [ ] Setup steps are clear
-  - [ ] Environment setup is documented
-  - [ ] Scripts are documented
-  - [ ] Features are listed
+### Step 4.1: Create Vendor Database Schema in Supabase
+**Task:** Create the vendors table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
+**SQL (to be executed in Supabase SQL Editor):**
+```sql
+-- Copy SQL from backend-rules.md Rule 1 for vendors table, triggers, and RLS
+-- Create vendors table
+CREATE TABLE vendors (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  address TEXT,
+  status TEXT CHECK (status IN ('active', 'inactive', 'pending')) DEFAULT 'pending',
+  notes TEXT,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
+-- Create or reuse updated_at trigger function
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
+CREATE TRIGGER update_vendors_updated_at
+BEFORE UPDATE ON vendors
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
 
-## Important Notes for Using with Cursor AI
+-- Set up RLS
+ALTER TABLE vendors ENABLE ROW LEVEL SECURITY;
 
-1. **Complete Implementation**
-   - Each step must be fully implemented before moving to the next
-   - All validation checks must pass
-   - References to MDC files must be followed
+-- RLS Policies from backend-rules.md Rule 1
+CREATE POLICY "Authenticated users can read all vendors" ON vendors FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Authenticated users can insert vendors" ON vendors FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL); -- Ensure created_by can be set
+CREATE POLICY "Authenticated users can update vendors" ON vendors FOR UPDATE TO authenticated USING (true);
+CREATE POLICY "Authenticated users can delete vendors" ON vendors FOR DELETE TO authenticated USING (true);
+```
+**Validation Criteria:**
+- [ ] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
+- [ ] Row-level security policies are applied correctly
+- [ ] Triggers work correctly (`updated_at`)
+- [ ] Data can be inserted and queried respecting RLS
 
-2. **File Naming**
-   - Use kebab-case for all file names
-   - Follow the conventions in `general.mdc`
-   - Maintain consistency across the project
+### Step 4.2: Create Vendor API Functions
+**Task:** Implement vendor CRUD operations *exactly* according to the patterns defined in `backend-rules.md` Rule 8.
+**File Operations:**
+- Create `src/lib/api/vendors.ts`:
+  *Implement functions:* `getVendors`, `getVendorById`, `createVendor`, `updateVendor`, `deleteVendor`.
+  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Vendor`, `VendorInsert`, `VendorUpdate`), and handle `created_by` on insert as shown in Rule 8.
+**Validation Criteria:**
+- [ ] All CRUD functions are implemented
+- [ ] Error handling uses the `handleApiError` utility function
+- [ ] TypeScript types from `Database` (`Vendor`, `VendorInsert`, `VendorUpdate`) are properly applied
+- [ ] `created_by` field is handled correctly on insert
+- [ ] Implementation strictly follows `backend-rules.md` Rule 8 patterns.
 
-3. **Testing and Validation**
-   - Run tests after each step and fix any bugs
-   - Verify all validation points
-   - Check against MDC guidelines
+### Step 4.3: Create Vendor List Page
+**Task:** Create a page to display and manage vendors, following `frontend-rules.md` (Rules 6, 13, 14).
+**File Operations:**
+- Create `src/pages/vendor/vendor-list.tsx`:
+  A page showing vendors in a `shadcn/ui` Table with search, filter (optional), and actions (view, edit, delete buttons/links). Fetch data using `getVendors` from Step 4.2. Implement loading, error, and empty states.
+**Validation Criteria:**
+- [ ] Page fetches and displays vendors correctly using API function
+- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`
+- [ ] Table uses shadcn/ui components
+- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls (delete).
 
-4. **Documentation**
-   - Keep inline documentation updated
-   - Follow TypeScript documentation patterns
-   - Maintain README with latest changes
+### Step 4.4: Create Vendor Form Component
+**Task:** Create a reusable form for adding and editing vendors, following `frontend-rules.md` Rule 7 (or 8 if using Zod).
+**File Operations:**
+- Create `src/components/vendor/vendor-form.tsx`:
+  A form component using `shadcn/ui` Form components (`Input`, `Select` for status, `Textarea` for notes/address). Handle form state, submission (calling `createVendor` or `updateVendor`), loading state, and error display.
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components
+- [ ] Validation is implemented (HTML5 basic or Zod later)
+- [ ] Form handles both create and edit modes (e.g., via props)
+- [ ] TypeScript props are properly defined
+- [ ] Submission calls correct API functions and handles response/errors
+- [ ] **Accessibility Requirements:**
+  - [ ] All form inputs have associated labels with proper `htmlFor` attributes
+  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
+  - [ ] Form can be navigated and submitted using keyboard only
+  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
+  - [ ] Loading state is announced to screen readers
+  - [ ] Success/error messages are announced via ARIA live regions
 
-5. **Error Handling**
-   - Implement proper error boundaries
-   - Add user-friendly error messages
-   - Log errors appropriately
+### Step 4.5: Create Vendor Detail Page
+**Task:** Create a page to view vendor details, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/vendor/vendor-detail.tsx`:
+  A page fetching vendor details using `getVendorById`. Display information using `shadcn/ui` Card or definition list style. Include placeholders/sections for related documents and contracts. Add Edit/Delete actions. Handle loading/error states.
+**Validation Criteria:**
+- [ ] Page fetches and displays vendor details correctly using API function
+- [ ] Loading and error states are handled
+- [ ] Related data (documents, contracts) placeholders exist
+- [ ] Actions (edit, delete) are implemented (linking to edit form, triggering delete API).
 
-Remember: This is an academic project focused on demonstrating understanding of core concepts. Keep the implementation clean and focused on requirements.
+## Phase 5: Authentication System
+
+### Step 5.1: Create Auth Types and Contexts
+**Task:** Setup authentication types and React context *exactly* as defined in `auth-rules.md` Rule 3 & 4.
+**File Operations:**
+- Create `src/types/auth.ts`:
+```typescript
+// Copy types EXACTLY from auth-rules.md Rule 3
+import type { User, Session } from '@supabase/supabase-js';
+
+export type AuthUser = User; // Use Supabase User type directly
+
+export interface AuthState {
+  user: AuthUser | null;
+  session: Session | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+}
+
+export interface AuthContextType extends AuthState {
+  signIn: (email: string, password: string) => Promise<{
+    success: boolean; // Use success/error pattern
+    error: string | null
+  }>;
+  signUp: (email: string, password: string) => Promise<{
+    success: boolean; // Use success/error pattern
+    error: string | null
+  }>;
+  signOut: () => Promise<void>;
+}
+```
+- Create `src/context/auth-context.tsx`:
+  Implement the `AuthProvider` component *exactly* as specified in `auth-rules.md` Rule 4. Ensure it uses `supabase.auth.onAuthStateChange` and provides the context value matching `AuthContextType`.
+**Validation Criteria:**
+- [ ] Types (`AuthUser`, `AuthState`, `AuthContextType`) exactly match `auth-rules.md` Rule 3.
+- [ ] `AuthProvider` implementation exactly matches `auth-rules.md` Rule 4.
+- [ ] Context is properly typed and exported.
+- [ ] Provider correctly manages auth state using Supabase listeners.
+
+### Step 5.1b: Integrate AuthProvider
+**Task:** Integrate the `AuthProvider` with the application *exactly* as specified in `auth-rules.md` Rule 6.
+**File Operations:**
+- Update `src/main.tsx`:
+```typescript
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/auth-context';
+import App from './App';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+```
+
+**Validation Criteria:**
+- [ ] `AuthProvider` wraps the entire application
+- [ ] Provider is placed correctly in the component hierarchy (inside `BrowserRouter`)
+- [ ] Implementation exactly matches `auth-rules.md` Rule 6
+- [ ] Auth context is available throughout the application
+
+### Step 5.2: Create Auth Hook
+**Task:** Implement a custom hook for authentication *exactly* as specified in `auth-rules.md` Rule 5.
+**File Operations:**
+- Create `src/hooks/use-auth.ts`:
+  Implement the `useAuth` hook exactly as shown in `auth-rules.md` Rule 5.
+**Validation Criteria:**
+- [ ] Hook provides access to auth context defined in Step 5.1
+- [ ] TypeScript return type is correctly defined (`AuthContextType`)
+- [ ] Hook includes check for provider existence.
+- [ ] Implementation exactly matches `auth-rules.md` Rule 5.
+
+### Step 5.3: Create Login Page
+**Task:** Build a login page with email/password authentication using `auth-rules.md` Rule 8 as a structural guide.
+**File Operations:**
+- Create `src/pages/auth/login-page.tsx`:
+  A page with login form using `shadcn/ui` components (`Input`, `Button`, `Label`). Use the `useAuth` hook (Step 5.2) to call the `signIn` method. Handle form state, submission, loading state, and display errors based on the `{ success, error }` response. Redirect on success.
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components.
+- [ ] Validation is implemented (e.g., required fields).
+- [ ] `signIn` function from `useAuth` hook is called on submit.
+- [ ] Error messages from the `signIn` response are displayed to the user.
+- [ ] Success redirects to the dashboard or intended page.
+- [ ] Loading state disables the submit button.
+
+### Step 5.4: Create Signup Page
+**Task:** Build a signup page for new user registration using `auth-rules.md` Rule 9 as a structural guide.
+**File Operations:**
+- Create `src/pages/auth/signup-page.tsx`:
+  A page with signup form using `shadcn/ui` components. Use the `useAuth` hook (Step 5.2) to call the `signUp` method. Handle form state, submission, loading state, password confirmation (optional but recommended), and display errors based on the `{ success, error }` response. Show confirmation message or redirect on success.
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components.
+- [ ] Validation is implemented (e.g., required fields, password rules).
+- [ ] `signUp` function from `useAuth` hook is called on submit.
+- [ ] Error messages from the `signUp` response are displayed to the user.
+- [ ] Success shows a confirmation message (e.g., "Check your email") or redirects to login.
+- [ ] Loading state disables the submit button.
+
+### Step 5.5: Create Protected Route Component
+**Task:** Implement route protection based on authentication status *exactly* as specified in `auth-rules.md` Rule 7.
+**File Operations:**
+- Create `src/components/auth/protected-route.tsx`:
+  Implement the `ProtectedRoute` component exactly as shown in `auth-rules.md` Rule 7, using the `useAuth` hook.
+**Validation Criteria:**
+- [ ] Component correctly checks `isAuthenticated` and `isLoading` from `useAuth`.
+- [ ] Redirects unauthenticated users to `/login`.
+- [ ] Shows a loading indicator while `isLoading` is true.
+- [ ] Renders children when authenticated.
+- [ ] Implementation exactly matches `auth-rules.md` Rule 7.
+
+### Step 5.6: Update Router with Protected Routes
+**Task:** Apply route protection to appropriate routes using the pattern in `auth-rules.md` Rule 11.
+**File Operations:**
+- Update `src/router.tsx` (or wherever `AppRouter` is defined):
+  Wrap routes requiring authentication with the `ProtectedRoute` component (Step 5.5). Ensure public routes like `/login` and `/signup` remain outside the protected wrapper. Use layout nesting as shown in `frontend-rules.md` Rule 11.
+**Validation Criteria:**
+- [ ] Protected routes use the `ProtectedRoute` component.
+- [ ] Public routes remain accessible without authentication.
+- [ ] Redirects work correctly for unauthenticated access attempts.
+- [ ] Router structure integrates layout and protection as per rules.
+
+### Step 5.7: Create Logout Component
+**Task:** Implement the logout button component *exactly* as specified in `auth-rules.md` Rule 10.
+**File Operations:**
+- Create `src/components/auth/logout-button.tsx`:
+```typescript
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+
+export function LogoutButton() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  return (
+    <Button
+      onClick={handleLogout}
+      variant="ghost"
+      className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+    >
+      Logout
+    </Button>
+  );
+}
+```
+
+- Update `src/components/layout/main-layout.tsx` to include the `LogoutButton` in the header/navigation area.
+
+**Validation Criteria:**
+- [ ] Component implementation matches `auth-rules.md` Rule 10 exactly
+- [ ] Logout functionality works correctly using `useAuth` hook
+- [ ] Navigation to login page occurs after successful logout
+- [ ] Button styling is consistent with the application theme
+- [ ] Component is properly integrated into the main layout
+
+## Phase 6: Contract Management Implementation
+
+### Step 6.1: Create Contract Database Schema in Supabase
+**Task:** Create the contracts table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
+**SQL (to be executed in Supabase SQL Editor):**
+```sql
+-- Copy SQL from backend-rules.md Rule 1 for contracts table, triggers, and RLS
+CREATE TABLE contracts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  vendor_id UUID REFERENCES vendors(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  value NUMERIC(15, 2) DEFAULT 0,
+  status TEXT CHECK (status IN ('draft', 'active', 'completed', 'terminated')) DEFAULT 'draft',
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT date_check CHECK (end_date >= start_date)
+);
+
+-- Create trigger using the existing update_modified_column function
+CREATE TRIGGER update_contracts_updated_at
+BEFORE UPDATE ON contracts
+FOR EACH ROW
+EXECUTE FUNCTION update_modified_column();
+
+-- Set up RLS
+ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies from backend-rules.md Rule
+```markdown
+-- RLS Policies from backend-rules.md Rule 1
+CREATE POLICY "Authenticated users can read all contracts" ON contracts FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Authenticated users can insert contracts" ON contracts FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Authenticated users can update contracts" ON contracts FOR UPDATE TO authenticated USING (true);
+CREATE POLICY "Authenticated users can delete contracts" ON contracts FOR DELETE TO authenticated USING (true);
+```
+**Validation Criteria:**
+- [ ] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
+- [ ] Foreign key relationship to vendors works correctly
+- [ ] Constraints (date check, status) work correctly
+- [ ] Row-level security policies are applied correctly
+- [ ] Triggers work correctly (`updated_at`)
+
+### Step 6.2: Create Contract API Functions
+**Task:** Implement contract CRUD operations *exactly* according to the patterns defined in `backend-rules.md` Rule 9.
+**File Operations:**
+- Create `src/lib/api/contracts.ts`:
+  *Implement functions:* `getContracts`, `getContractsByVendorId`, `getContractById`, `createContract`, `updateContract`, `deleteContract`.
+  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Contract`, `ContractInsert`, `ContractUpdate`), handle `created_by`, and include joins like `vendors(name)` where specified in Rule 9.
+**Validation Criteria:**
+- [ ] All CRUD functions are implemented as specified.
+- [ ] Error handling uses the `handleApiError` utility function.
+- [ ] TypeScript types from `Database` (`Contract`, `ContractInsert`, `ContractUpdate`) are properly applied.
+- [ ] `created_by` field is handled correctly on insert.
+- [ ] Joins for related data (e.g., vendor name) are included where specified.
+- [ ] Implementation strictly follows `backend-rules.md` Rule 9 patterns.
+
+### Step 6.3: Create Contract List Page
+**Task:** Create a page to display and manage contracts, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/contract/contract-list.tsx`:
+  A page showing contracts in a `shadcn/ui` Table. Fetch data using `getContracts` (Step 6.2). Include columns like Title, Vendor Name (from join), Status, Dates. Add search/filter (optional). Add actions (View, Edit, Delete). Implement loading, error, empty states.
+**Validation Criteria:**
+- [ ] Page fetches and displays contracts correctly using API function.
+- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`.
+- [ ] Table uses shadcn/ui components.
+- [ ] Data from related tables (e.g., Vendor Name) is displayed correctly.
+- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls.
+
+### Step 6.4: Create Contract Form Component
+**Task:** Create a reusable form for adding and editing contracts, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/components/contract/contract-form.tsx`:
+  A form using `shadcn/ui` components (`Input` for title/value, `Textarea` for description, `Select` for vendor/status, Date pickers). Populate Vendor select by fetching vendors. Handle form state, submission (calling `createContract` or `updateContract`), loading state, error display. Validate dates (`end_date >= start_date`).
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components, including date pickers
+- [ ] Vendor selection dropdown is populated and works
+- [ ] Date validation and other field validations are implemented
+- [ ] Form handles both create and edit modes
+- [ ] Submission calls correct API functions and handles response/errors
+- [ ] **Accessibility Requirements:**
+  - [ ] All form controls have descriptive labels with proper `htmlFor` attributes
+  - [ ] Date pickers are keyboard accessible and announce selected dates
+  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
+  - [ ] Form can be navigated and submitted using keyboard only
+  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
+  - [ ] Loading state is announced to screen readers
+  - [ ] Success/error messages are announced via ARIA live regions
+
+### Step 6.5: Create Contract Detail Page
+**Task:** Create a page to view contract details, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/contract/contract-detail.tsx`:
+  A page fetching contract details using `getContractById`. Display information (including vendor name) using `shadcn/ui` Card or definition list. Include placeholders/sections for related documents. Add Edit/Delete actions. Handle loading/error states.
+**Validation Criteria:**
+- [ ] Page fetches and displays contract details correctly using API function.
+- [ ] Related vendor information is displayed.
+- [ ] Status is visually indicated (e.g., using badges).
+- [ ] Loading and error states are handled.
+- [ ] Related data (documents) placeholders exist.
+- [ ] Actions (edit, delete) are implemented.
+
+## Phase 7: Document Management Implementation
+
+### Step 7.1: Set Up Storage in Supabase
+**Task:** Configure Supabase storage for document management *exactly* as defined in `backend-rules.md` Rule 2.
+**Steps (to be performed in Supabase Dashboard or via Management API/CLI):**
+1. Create a new storage bucket named "documents".
+2. Set bucket to private.
+
+**SQL (for RLS policies and documents table, execute in Supabase SQL Editor):**
+```sql
+-- Create documents table
+CREATE TABLE documents (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  description TEXT,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('vendor', 'contract')),
+  entity_id UUID NOT NULL,
+  file_path TEXT NOT NULL,
+  file_type TEXT,
+  file_size INTEGER,
+  uploaded_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS Policies for documents table
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+
+-- Authenticated users can read all documents
+CREATE POLICY "Authenticated users can read all documents"
+ON documents FOR SELECT
+TO authenticated
+USING (true);
+
+-- Authenticated users can insert documents
+CREATE POLICY "Authenticated users can insert documents"
+ON documents FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+-- Authenticated users can delete documents
+CREATE POLICY "Authenticated users can delete documents"
+ON documents FOR DELETE
+TO authenticated
+USING (true);
+
+-- Storage bucket RLS policies
+-- Ensure bucket exists (or create via dashboard)
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('documents', 'documents', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- RLS Policies for storage.objects
+CREATE POLICY "Authenticated users can read documents"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (bucket_id = 'documents');
+
+CREATE POLICY "Authenticated users can upload documents"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'documents');
+
+CREATE POLICY "Authenticated users can update documents"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'documents' AND owner = auth.uid());
+
+CREATE POLICY "Authenticated users can delete documents"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'documents' AND owner = auth.uid());
+```
+
+**Validation Criteria:**
+- [ ] Storage bucket "documents" exists and is private
+- [ ] Documents table is created successfully
+- [ ] RLS policies for both `storage.objects` and `documents` table are applied correctly
+- [ ] Test upload/download/delete respects RLS policies
+
+### Step 7.2: Create Document API Functions
+**Task:** Implement document upload and management functions *exactly* according to the patterns defined in `backend-rules.md` Rule 10.
+**File Operations:**
+- Create `src/lib/api/documents.ts`:
+  *Implement functions:* `uploadDocument` (handling storage upload and DB insert), `getDocumentsByEntity`, `getDocumentById` (optional), `getDocumentUrl` (for signed URLs), `deleteDocument` (handling storage removal and DB delete).
+  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Document`, `DocumentInsert`), handle file paths, signed URLs, and combined storage/DB operations as shown in Rule 10.
+**Validation Criteria:**
+- [ ] `uploadDocument` function correctly uploads to storage and inserts DB record.
+- [ ] `getDocumentsByEntity` retrieves documents for a vendor/contract.
+- [ ] `getDocumentUrl` generates a working signed URL.
+- [ ] `deleteDocument` removes the file from storage and the record from the DB.
+- [ ] Error handling is consistent and uses `handleApiError`.
+- [ ] Implementation strictly follows `backend-rules.md` Rule 10 patterns.
+
+### Step 7.3: Create Document Upload Component
+**Task:** Create a reusable component for document uploads, following `frontend-rules.md` Rule 18.
+**File Operations:**
+- Create `src/components/document/document-upload.tsx`:
+  A component with a file input (`<Input type="file">`). On file selection, trigger the `uploadDocument` API function (Step 7.2). Display upload progress (optional, requires modifying API function signature). Show success/error messages. Pass `entityType` and `entityId` as props.
+**Validation Criteria:**
+- [ ] File selection works correctly
+- [ ] `uploadDocument` API is called with correct parameters
+- [ ] Upload progress is displayed (if implemented)
+- [ ] Error handling is implemented using API response
+- [ ] Success feedback is shown (e.g., using Toast)
+- [ ] Component is reusable with `entityType` and `entityId` props
+- [ ] **Accessibility Requirements:**
+  - [ ] File input has a descriptive label and instructions
+  - [ ] Upload progress is announced to screen readers
+  - [ ] Error messages are announced using `aria-invalid` and `aria-describedby`
+  - [ ] Component can be operated using keyboard only
+  - [ ] Success/error messages are announced via ARIA live regions
+  - [ ] File type restrictions and size limits are clearly communicated
+
+### Step 7.4: Create Document List Component
+**Task:** Create a component to display documents, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/components/document/document-list.tsx`:
+  A component that fetches documents using `getDocumentsByEntity` (Step 7.2) based on props (`entityType`, `entityId`). Display documents in a list or table (`shadcn/ui`). Include actions for each document: Download (fetches signed URL via `getDocumentUrl` and creates a link) and Delete (calls `deleteDocument`). Handle loading/error/empty states.
+**Validation Criteria:**
+- [ ] Documents are fetched and displayed correctly for the given entity.
+- [ ] Download action generates a signed URL and initiates download.
+- [ ] Delete action calls the `deleteDocument` API and updates the list on success.
+- [ ] Empty and loading/error states are handled appropriately.
+
+### Step 7.5: Integrate Documents with Vendor and Contract Pages
+**Task:** Add document management sections to vendor and contract detail pages.
+**File Operations:**
+- Update `src/pages/vendor/vendor-detail.tsx`: Add the `DocumentUpload` (Step 7.3) and `DocumentList` (Step 7.4) components, passing the correct `entityType` ('vendor') and `entityId`.
+- Update `src/pages/contract/contract-detail.tsx`: Add the `DocumentUpload` (Step 7.3) and `DocumentList` (Step 7.4) components, passing the correct `entityType` ('contract') and `entityId`.
+**Validation Criteria:**
+- [ ] Document upload component is present and functional on detail pages.
+- [ ] Document list component is present and functional, displaying relevant documents.
+- [ ] Uploads/deletions correctly reflect in the list component after refresh/real-time update.
+- [ ] UI integration is clean and consistent.
+
+## Phase 8: Dashboard and Final Polish
+
+### Step 8.1: Create Dashboard Page
+**Task:** Build a dashboard with summary information, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/dashboard/dashboard-page.tsx`:
+  A page displaying summary information, potentially using `shadcn/ui` Cards. Examples: Total Vendors, Active Contracts count, Recently Added Vendors/Contracts. Fetch necessary data using existing or new lightweight API calls.
+**Validation Criteria:**
+- [ ] Dashboard fetches and displays summary statistics correctly.
+- [ ] Recent items list is populated (if implemented).
+- [ ] Layout uses `shadcn/ui` components effectively.
+- [ ] Loading/error states are handled for data fetching.
+
+### Step 8.2: Add Form Validation with Zod
+**Task:** Add schema validation to all forms using Zod and react-hook-form, following `frontend-rules.md` Rule 8.
+**Commands:**
+```bash
+npm install zod react-hook-form @hookform/resolvers
+```
+**File Operations:**
+- Create `src/schemas/vendor.schema.ts`: Define Zod schema matching `VendorFormValues`.
+- Create `src/schemas/contract.schema.ts`: Define Zod schema matching `ContractFormValues`.
+- Update `src/components/vendor/vendor-form.tsx` to use `useForm`, `zodResolver`, and `shadcn/ui` `Form` components.
+- Update `src/components/contract/contract-form.tsx` to use `useForm`, `zodResolver`, and `shadcn/ui` `Form` components.
+- Update `src/pages/auth/login-page.tsx` and `src/pages/auth/signup-page.tsx` with Zod validation if desired.
+**Validation Criteria:**
+- [ ] Zod schemas are properly typed and match form data structures.
+- [ ] `react-hook-form` and `zodResolver` are integrated into forms.
+- [ ] `shadcn/ui` Form components (`FormField`, `FormItem`, `FormMessage`, etc.) are used.
+- [ ] Validation errors are displayed correctly next to form fields.
+- [ ] Form submission is blocked on validation failure.
+
+### Step 8.3: Add Toast Notifications
+**Task:** Implement toast notifications for user feedback using `shadcn/ui` Toast.
+**File Operations:**
+- Ensure `Toast` and `Toaster` components from `shadcn/ui` are installed and available.
+- Add `<Toaster />` component to the main layout (`src/components/layout/main-layout.tsx` or `src/App.tsx`).
+- Create a hook or utility for showing toasts (e.g., `src/hooks/use-toast.ts` leveraging `shadcn/ui`'s `useToast`).
+- Update API call sites (form submissions, delete actions) to show success or error toasts using the hook/utility.
+**Validation Criteria:**
+- [ ] `<Toaster />` is added to the main application layout.
+- [ ] A hook/utility (`useToast`) is available for triggering toasts.
+- [ ] Success messages (e.g., "Vendor created successfully") are shown after successful operations.
+- [ ] Error messages (e.g., "Failed to delete contract") are shown when API calls fail.
+- [ ] Toast styling is consistent with the theme.
+
+### Step 8.4: Implement Error Boundaries
+**Task:** Add React Error Boundaries to handle unexpected rendering errors gracefully, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/components/error-boundary.tsx`:
+  A class component implementing `getDerivedStateFromError` and `componentDidCatch`. Render a fallback UI when an error is caught.
+- Update `src/App.tsx` or main layout to wrap the primary content or router with the `ErrorBoundary`.
+**Validation Criteria:**
+- [ ] Error boundary component is created correctly.
+- [ ] Error boundary catches JavaScript errors during rendering in its child component tree.
+- [ ] A user-friendly fallback UI is displayed instead of a blank screen or broken app.
+- [ ] Errors are logged via `componentDidCatch` for debugging.
+
+### Step 8.5: Create Documentation
+**Task:** Create project documentation.
+**File Operations:**
+- Create/Update `README.md`:
+  Include project overview, tech stack, setup instructions (cloning, `npm install`), environment variable setup (`.env` from `.env.example`), running the development server (`npm run dev`), build command (`npm run build`), and a brief explanation of the project structure and key features.
+**Validation Criteria:**
+- [ ] `README.md` exists in the project root.
+- [ ] Installation and setup instructions are clear and accurate.
+- [ ] Environment variable requirements are documented.
+- [ ] Basic usage instructions are provided.
+
+### Step 8.6: Final Testing and Deployment Preparation
+**Task:** Perform final testing and prepare for deployment.
+**Steps:**
+1. Thoroughly test all CRUD operations for Vendors, Contracts, and Documents.
+2. Test authentication flow (signup, login, logout, protected routes).
+3. Test form validations and error handling.
+4. Test responsiveness across different screen sizes (mobile, tablet, desktop).
+5. Check browser console for any errors or warnings.
+6. Run the build command: `npm run build`.
+7. (Optional) Configure project on Vercel (or chosen platform), setting up environment variables.
+**Validation Criteria:**
+- [ ] All application features work as expected across different scenarios.
+- [ ] No critical errors or warnings in the browser console.
+- [ ] The application builds successfully using `npm run build`.
+- [ ] The application is responsive and usable on major screen sizes.
+- [ ] Deployment environment variables are identified and ready.
+
+## End of Implementation Plan
+```

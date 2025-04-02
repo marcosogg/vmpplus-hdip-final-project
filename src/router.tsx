@@ -1,10 +1,13 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { MainLayout } from './components/layout/main-layout';
 
 // Auth pages
 import { LoginPage } from './pages/auth/login-page';
 import { SignupPage } from './pages/auth/signup-page';
+
+// Landing page
+import { LandingPage } from './pages/landing/landing-page';
 
 // Protected pages
 import { DashboardPage } from './pages/dashboard/dashboard-page';
@@ -26,21 +29,26 @@ const NotFoundPage = () => (
 export function AppRouter() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public landing page */}
+      <Route path="/" element={<LandingPage />} />
+      
+      {/* Public auth routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       
       {/* Protected routes with MainLayout */}
       <Route 
-        path="/" 
+        path="/app" 
         element={
           <ProtectedRoute>
-            <MainLayout />
+            <MainLayout>
+              <Outlet />
+            </MainLayout>
           </ProtectedRoute>
         }
       >
-        {/* Redirect root to dashboard */}
-        <Route index element={<Navigate to="/dashboard" replace />} />
+        {/* Redirect app root to dashboard */}
+        <Route index element={<Navigate to="/app/dashboard" replace />} />
         
         {/* Dashboard */}
         <Route path="dashboard" element={<DashboardPage />} />

@@ -41,7 +41,66 @@ To prevent similar errors throughout the project development:
 
 ---
 
-Okay, here is the revised `VMP PLUS Implementation Plan` incorporating the adjustments to ensure strict alignment with the detailed rules documents. Changes focus on correcting specific code snippets, clarifying type definitions, explicitly referencing the detailed rules for API implementations, and strengthening validation criteria.
+# Git Workflow Integration
+
+To ensure proper version control throughout the project, we'll follow the Git Flow principles outlined in the Git Flow Plan. This section provides instructions on how to integrate Git commits with our implementation steps.
+
+## Initial Repository Setup
+
+If the repository hasn't been initialized yet, begin with:
+
+```powershell
+# Initialize Git repository
+git init
+
+# Create initial commit for completed phases 1-2
+git add .
+git commit -m "feat: initial project setup including UI infrastructure (Phases 1-2)"
+
+# Rename current branch to main (if needed)
+git branch -M main
+
+# Create and checkout develop branch
+git checkout -b develop
+```
+
+## Git Workflow for Each Phase
+
+For each remaining phase (3 and beyond), follow this workflow:
+
+1. **Start Phase with Feature Branch:**
+   ```powershell
+   git checkout develop
+   git checkout -b feature/phase-name
+   ```
+
+2. **Commit After Each Step:**
+   Make regular, atomic commits after completing each step using Conventional Commits format.
+
+3. **Complete Phase:**
+   ```powershell
+   git push -u origin feature/phase-name
+   # Create PR to merge to develop (via GitHub/GitLab UI)
+   # After PR is merged:
+   git checkout develop
+   git pull origin develop
+   git branch -d feature/phase-name
+   ```
+
+4. **Milestone Releases:**
+   When a significant milestone is reached:
+   ```powershell
+   # Create PR from develop to main (via UI)
+   # After PR is merged:
+   git checkout main
+   git pull origin main
+   git tag -a v0.1.0 -m "Release version 0.1.0: [Milestone Description]"
+   git push origin v0.1.0
+   ```
+
+Let's proceed with the implementation plan, now with Git steps integrated at each point.
+
+---
 
 # VMP PLUS Implementation Plan (Revised)
 
@@ -65,6 +124,12 @@ npm install
 [x] Project builds successfully with `npm run dev`
 [x] TypeScript configuration exists and is properly set up
 [x] React components can be created and rendered
+
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: initialize Vite with React and TypeScript"
+```
 
 ### Step 1.2: Install and Configure Tailwind CSS
 **Task:** Add Tailwind CSS to the project.
@@ -99,6 +164,12 @@ export default {
 [x] Build process includes CSS processing
 [x] Configuration files exist in the correct locations
 
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: add and configure Tailwind CSS"
+```
+
 ### Step 1.3: Install React Router
 **Task:** Add routing capabilities to the application.
 **Commands:**
@@ -113,6 +184,12 @@ npm install react-router-dom
 [x] Router is configured with basic routes
 [x] Navigation between routes works correctly
 [x] TypeScript types for router components are properly set
+
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: add React Router and create basic routes"
+```
 
 ### Step 1.4: Create Basic Project Structure
 **Task:** Set up the full directory structure according to project guidelines.
@@ -146,6 +223,12 @@ npm install react-router-dom
 [x] Structure follows `general.mdc` project guidelines exactly
 [x] TypeScript paths are configured correctly (if using path aliases)
 
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: create complete project directory structure"
+```
+
 ### Step 1.5: Setup Environment Variables
 **Task:** Configure environment variables for the project.
 **File Operations:**
@@ -161,7 +244,18 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
 [x] `.env` is listed in `.gitignore`
 [x] Environment variables can be accessed using `import.meta.env.VITE_*`
 
+**Git Commit:**
+```powershell
+git add .env.example .gitignore
+git commit -m "chore: set up environment variables configuration"
+```
+
 ## Phase 2: UI Infrastructure with shadcn/ui
+
+**Git Phase Start:**
+```powershell
+git checkout -b feature/ui-infrastructure
+```
 
 ### Step 2.1: Install shadcn/ui Core Dependencies
 **Task:** Add required dependencies for shadcn/ui components.
@@ -173,6 +267,12 @@ npm install class-variance-authority clsx tailwind-merge lucide-react
 [x] All dependencies install successfully
 [x] No version conflicts exist
 [x] TypeScript types are available for all dependencies
+
+**Git Commit:**
+```powershell
+git add package.json package-lock.json
+git commit -m "feat: install shadcn/ui core dependencies"
+```
 
 ### Step 2.2: Install shadcn/ui CLI and Initialize Components
 **Task:** Setup shadcn/ui and add base components.
@@ -196,6 +296,12 @@ npx shadcn-ui init
 [x] Utility functions are created in the specified location (`src/lib/utils.ts`)
 [x] Component installation commands work
 
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: initialize shadcn/ui and create configuration"
+```
+
 ### Step 2.3: Add Essential UI Components
 **Task:** Install commonly used shadcn/ui components.
 **Commands:**
@@ -217,6 +323,12 @@ npx shadcn-ui add toast
 [x] Component TypeScript types are available
 [x] Components render correctly with Tailwind styles
 
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: add essential shadcn/ui components"
+```
+
 ### Step 2.4: Create Layout Components
 **Task:** Build reusable layout components for the application according to `frontend-rules.md` Rule 9.
 **File Operations:**
@@ -233,7 +345,29 @@ npx shadcn-ui add toast
 [x] Components accept and correctly use props
 [x] Implementation matches patterns in `frontend-rules.md`.
 
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: create layout components for application structure"
+```
+
+**Git Phase Complete:**
+```powershell
+git push -u origin feature/ui-infrastructure
+# Create PR to merge to develop (via UI)
+# After PR is merged:
+git checkout develop
+git pull origin develop
+git branch -d feature/ui-infrastructure
+```
+
 ## Phase 3: Supabase Configuration and Core Types
+
+**Git Phase Start:**
+```powershell
+git checkout develop
+git checkout -b feature/supabase-config
+```
 
 ### Step 3.1: Install Supabase Client
 **Task:** Add Supabase client library to the project.
@@ -242,9 +376,15 @@ npx shadcn-ui add toast
 npm install @supabase/supabase-js
 ```
 **Validation Criteria:**
-- [ ] Supabase client can be imported
-- [ ] TypeScript types are available for Supabase client
-- [ ] No version conflicts exist
+- [x] Supabase client can be imported
+- [x] TypeScript types are available for Supabase client
+- [x] No version conflicts exist
+
+**Git Commit:**
+```powershell
+git add package.json package-lock.json
+git commit -m "feat: install Supabase client library"
+```
 
 ### Step 3.2: Create Supabase Client Configuration
 **Task:** Set up a typed Supabase client instance *exactly* as specified in `backend-rules.md` Rule 3.
@@ -267,11 +407,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 ```
 **Validation Criteria:**
-- [ ] Supabase client is correctly initialized *with the `<Database>` generic type*
-- [ ] Environment variables are properly validated
-- [ ] Client is exported and can be imported elsewhere
-- [ ] TypeScript types are correctly applied
-- [ ] Implementation exactly matches `backend-rules.md` Rule 3.
+- [x] Supabase client is correctly initialized *with the `<Database>` generic type*
+- [x] Environment variables are properly validated
+- [x] Client is exported and can be imported elsewhere
+- [x] TypeScript types are correctly applied
+- [x] Implementation exactly matches `backend-rules.md` Rule 3.
+
+**Git Commit:**
+```powershell
+git add src/lib/supabase.ts
+git commit -m "feat: create Supabase client configuration"
+```
 
 ### Step 3.2b: Generate Supabase TypeScript Types
 **Task:** Generate TypeScript types for the Supabase database schema.
@@ -438,10 +584,16 @@ export interface Database {
 ```
 
 **Validation Criteria:**
-- [ ] Types are generated successfully from Supabase schema
-- [ ] Generated/defined types match the database schema exactly
-- [ ] Types are properly exported and can be imported
-- [ ] All tables (profiles, vendors, contracts, documents) are represented in the types
+- [x] Types are generated successfully from Supabase schema
+- [x] Generated/defined types match the database schema exactly
+- [x] Types are properly exported and can be imported
+- [x] All tables (profiles, vendors, contracts, documents) are represented in the types
+
+**Git Commit:**
+```powershell
+git add src/types/supabase.ts package.json package-lock.json
+git commit -m "feat: create Supabase database type definitions"
+```
 
 ### Step 3.2c: Create Profiles Table and API Implementation
 **Task:** Set up the profiles table in Supabase and implement its API functions *exactly* as defined in `backend-rules.md` Rule 1 & 5.
@@ -549,21 +701,24 @@ export async function createProfile(userId: string, email: string) {
 ```
 
 **Validation Criteria:**
-- [ ] Profiles table is created successfully in Supabase
-- [ ] RLS policies are properly applied
-- [ ] Trigger for `updated_at` works correctly
-- [ ] API functions are implemented following the patterns in `backend-rules.md` Rule 5
-- [ ] Error handling uses the `handleApiError` utility
-- [ ] TypeScript types from `Database` are properly applied
-- [ ] Profile creation is integrated with the signup process
+- [x] Profiles table is created successfully in Supabase
+- [x] RLS policies are properly applied
+- [x] Trigger for `updated_at` works correctly
+- [x] API functions are implemented following the patterns in `backend-rules.md` Rule 5
+- [x] Error handling uses the `handleApiError` utility
+- [x] TypeScript types from `Database` are properly applied
+- [x] Profile creation is integrated with the signup process
 
-## Phase 4: Vendor Management Implementation
+**Git Commit:**
+```powershell
+git add src/lib/api/profiles.ts
+git commit -m "feat: create profiles API implementation"
+```
 
-### Step 4.1: Create Vendor Database Schema in Supabase
-**Task:** Create the vendors table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
+### Step 3.2d: Create Vendors Table and API Implementation
+**Task:** Set up the vendors table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
 **SQL (to be executed in Supabase SQL Editor):**
 ```sql
--- Copy SQL from backend-rules.md Rule 1 for vendors table, triggers, and RLS
 -- Create vendors table
 CREATE TABLE vendors (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -602,239 +757,22 @@ CREATE POLICY "Authenticated users can update vendors" ON vendors FOR UPDATE TO 
 CREATE POLICY "Authenticated users can delete vendors" ON vendors FOR DELETE TO authenticated USING (true);
 ```
 **Validation Criteria:**
-- [ ] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
-- [ ] Row-level security policies are applied correctly
-- [ ] Triggers work correctly (`updated_at`)
-- [ ] Data can be inserted and queried respecting RLS
+- [x] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
+- [x] Row-level security policies are applied correctly
+- [x] Triggers work correctly (`updated_at`)
+- [x] Data can be inserted and queried respecting RLS
 
-### Step 4.2: Create Vendor API Functions
-**Task:** Implement vendor CRUD operations *exactly* according to the patterns defined in `backend-rules.md` Rule 8.
-**File Operations:**
-- Create `src/lib/api/vendors.ts`:
-  *Implement functions:* `getVendors`, `getVendorById`, `createVendor`, `updateVendor`, `deleteVendor`.
-  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Vendor`, `VendorInsert`, `VendorUpdate`), and handle `created_by` on insert as shown in Rule 8.
-**Validation Criteria:**
-- [ ] All CRUD functions are implemented
-- [ ] Error handling uses the `handleApiError` utility function
-- [ ] TypeScript types from `Database` (`Vendor`, `VendorInsert`, `VendorUpdate`) are properly applied
-- [ ] `created_by` field is handled correctly on insert
-- [ ] Implementation strictly follows `backend-rules.md` Rule 8 patterns.
-
-### Step 4.3: Create Vendor List Page
-**Task:** Create a page to display and manage vendors, following `frontend-rules.md` (Rules 6, 13, 14).
-**File Operations:**
-- Create `src/pages/vendor/vendor-list.tsx`:
-  A page showing vendors in a `shadcn/ui` Table with search, filter (optional), and actions (view, edit, delete buttons/links). Fetch data using `getVendors` from Step 4.2. Implement loading, error, and empty states.
-**Validation Criteria:**
-- [ ] Page fetches and displays vendors correctly using API function
-- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`
-- [ ] Table uses shadcn/ui components
-- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls (delete).
-
-### Step 4.4: Create Vendor Form Component
-**Task:** Create a reusable form for adding and editing vendors, following `frontend-rules.md` Rule 7 (or 8 if using Zod).
-**File Operations:**
-- Create `src/components/vendor/vendor-form.tsx`:
-  A form component using `shadcn/ui` Form components (`Input`, `Select` for status, `Textarea` for notes/address). Handle form state, submission (calling `createVendor` or `updateVendor`), loading state, and error display.
-**Validation Criteria:**
-- [ ] Form uses shadcn/ui components
-- [ ] Validation is implemented (HTML5 basic or Zod later)
-- [ ] Form handles both create and edit modes (e.g., via props)
-- [ ] TypeScript props are properly defined
-- [ ] Submission calls correct API functions and handles response/errors
-- [ ] **Accessibility Requirements:**
-  - [ ] All form inputs have associated labels with proper `htmlFor` attributes
-  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
-  - [ ] Form can be navigated and submitted using keyboard only
-  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
-  - [ ] Loading state is announced to screen readers
-  - [ ] Success/error messages are announced via ARIA live regions
-
-### Step 4.5: Create Vendor Detail Page
-**Task:** Create a page to view vendor details, following `frontend-rules.md`.
-**File Operations:**
-- Create `src/pages/vendor/vendor-detail.tsx`:
-  A page fetching vendor details using `getVendorById`. Display information using `shadcn/ui` Card or definition list style. Include placeholders/sections for related documents and contracts. Add Edit/Delete actions. Handle loading/error states.
-**Validation Criteria:**
-- [ ] Page fetches and displays vendor details correctly using API function
-- [ ] Loading and error states are handled
-- [ ] Related data (documents, contracts) placeholders exist
-- [ ] Actions (edit, delete) are implemented (linking to edit form, triggering delete API).
-
-## Phase 5: Authentication System
-
-### Step 5.1: Create Auth Types and Contexts
-**Task:** Setup authentication types and React context *exactly* as defined in `auth-rules.md` Rule 3 & 4.
-**File Operations:**
-- Create `src/types/auth.ts`:
-```typescript
-// Copy types EXACTLY from auth-rules.md Rule 3
-import type { User, Session } from '@supabase/supabase-js';
-
-export type AuthUser = User; // Use Supabase User type directly
-
-export interface AuthState {
-  user: AuthUser | null;
-  session: Session | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-}
-
-export interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<{
-    success: boolean; // Use success/error pattern
-    error: string | null
-  }>;
-  signUp: (email: string, password: string) => Promise<{
-    success: boolean; // Use success/error pattern
-    error: string | null
-  }>;
-  signOut: () => Promise<void>;
-}
-```
-- Create `src/context/auth-context.tsx`:
-  Implement the `AuthProvider` component *exactly* as specified in `auth-rules.md` Rule 4. Ensure it uses `supabase.auth.onAuthStateChange` and provides the context value matching `AuthContextType`.
-**Validation Criteria:**
-- [ ] Types (`AuthUser`, `AuthState`, `AuthContextType`) exactly match `auth-rules.md` Rule 3.
-- [ ] `AuthProvider` implementation exactly matches `auth-rules.md` Rule 4.
-- [ ] Context is properly typed and exported.
-- [ ] Provider correctly manages auth state using Supabase listeners.
-
-### Step 5.1b: Integrate AuthProvider
-**Task:** Integrate the `AuthProvider` with the application *exactly* as specified in `auth-rules.md` Rule 6.
-**File Operations:**
-- Update `src/main.tsx`:
-```typescript
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/auth-context';
-import App from './App';
-import './index.css';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+**Git Commit:**
+```powershell
+git add src/lib/api/vendors.ts
+git commit -m "feat: create vendors API implementation"
 ```
 
-**Validation Criteria:**
-- [ ] `AuthProvider` wraps the entire application
-- [ ] Provider is placed correctly in the component hierarchy (inside `BrowserRouter`)
-- [ ] Implementation exactly matches `auth-rules.md` Rule 6
-- [ ] Auth context is available throughout the application
-
-### Step 5.2: Create Auth Hook
-**Task:** Implement a custom hook for authentication *exactly* as specified in `auth-rules.md` Rule 5.
-**File Operations:**
-- Create `src/hooks/use-auth.ts`:
-  Implement the `useAuth` hook exactly as shown in `auth-rules.md` Rule 5.
-**Validation Criteria:**
-- [ ] Hook provides access to auth context defined in Step 5.1
-- [ ] TypeScript return type is correctly defined (`AuthContextType`)
-- [ ] Hook includes check for provider existence.
-- [ ] Implementation exactly matches `auth-rules.md` Rule 5.
-
-### Step 5.3: Create Login Page
-**Task:** Build a login page with email/password authentication using `auth-rules.md` Rule 8 as a structural guide.
-**File Operations:**
-- Create `src/pages/auth/login-page.tsx`:
-  A page with login form using `shadcn/ui` components (`Input`, `Button`, `Label`). Use the `useAuth` hook (Step 5.2) to call the `signIn` method. Handle form state, submission, loading state, and display errors based on the `{ success, error }` response. Redirect on success.
-**Validation Criteria:**
-- [ ] Form uses shadcn/ui components.
-- [ ] Validation is implemented (e.g., required fields).
-- [ ] `signIn` function from `useAuth` hook is called on submit.
-- [ ] Error messages from the `signIn` response are displayed to the user.
-- [ ] Success redirects to the dashboard or intended page.
-- [ ] Loading state disables the submit button.
-
-### Step 5.4: Create Signup Page
-**Task:** Build a signup page for new user registration using `auth-rules.md` Rule 9 as a structural guide.
-**File Operations:**
-- Create `src/pages/auth/signup-page.tsx`:
-  A page with signup form using `shadcn/ui` components. Use the `useAuth` hook (Step 5.2) to call the `signUp` method. Handle form state, submission, loading state, password confirmation (optional but recommended), and display errors based on the `{ success, error }` response. Show confirmation message or redirect on success.
-**Validation Criteria:**
-- [ ] Form uses shadcn/ui components.
-- [ ] Validation is implemented (e.g., required fields, password rules).
-- [ ] `signUp` function from `useAuth` hook is called on submit.
-- [ ] Error messages from the `signUp` response are displayed to the user.
-- [ ] Success shows a confirmation message (e.g., "Check your email") or redirects to login.
-- [ ] Loading state disables the submit button.
-
-### Step 5.5: Create Protected Route Component
-**Task:** Implement route protection based on authentication status *exactly* as specified in `auth-rules.md` Rule 7.
-**File Operations:**
-- Create `src/components/auth/protected-route.tsx`:
-  Implement the `ProtectedRoute` component exactly as shown in `auth-rules.md` Rule 7, using the `useAuth` hook.
-**Validation Criteria:**
-- [ ] Component correctly checks `isAuthenticated` and `isLoading` from `useAuth`.
-- [ ] Redirects unauthenticated users to `/login`.
-- [ ] Shows a loading indicator while `isLoading` is true.
-- [ ] Renders children when authenticated.
-- [ ] Implementation exactly matches `auth-rules.md` Rule 7.
-
-### Step 5.6: Update Router with Protected Routes
-**Task:** Apply route protection to appropriate routes using the pattern in `auth-rules.md` Rule 11.
-**File Operations:**
-- Update `src/router.tsx` (or wherever `AppRouter` is defined):
-  Wrap routes requiring authentication with the `ProtectedRoute` component (Step 5.5). Ensure public routes like `/login` and `/signup` remain outside the protected wrapper. Use layout nesting as shown in `frontend-rules.md` Rule 11.
-**Validation Criteria:**
-- [ ] Protected routes use the `ProtectedRoute` component.
-- [ ] Public routes remain accessible without authentication.
-- [ ] Redirects work correctly for unauthenticated access attempts.
-- [ ] Router structure integrates layout and protection as per rules.
-
-### Step 5.7: Create Logout Component
-**Task:** Implement the logout button component *exactly* as specified in `auth-rules.md` Rule 10.
-**File Operations:**
-- Create `src/components/auth/logout-button.tsx`:
-```typescript
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-
-export function LogoutButton() {
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
-  };
-
-  return (
-    <Button
-      onClick={handleLogout}
-      variant="ghost"
-      className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-    >
-      Logout
-    </Button>
-  );
-}
-```
-
-- Update `src/components/layout/main-layout.tsx` to include the `LogoutButton` in the header/navigation area.
-
-**Validation Criteria:**
-- [ ] Component implementation matches `auth-rules.md` Rule 10 exactly
-- [ ] Logout functionality works correctly using `useAuth` hook
-- [ ] Navigation to login page occurs after successful logout
-- [ ] Button styling is consistent with the application theme
-- [ ] Component is properly integrated into the main layout
-
-## Phase 6: Contract Management Implementation
-
-### Step 6.1: Create Contract Database Schema in Supabase
-**Task:** Create the contracts table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
+### Step 3.2e: Create Contracts Table and API Implementation
+**Task:** Set up the contracts table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
 **SQL (to be executed in Supabase SQL Editor):**
 ```sql
--- Copy SQL from backend-rules.md Rule 1 for contracts table, triggers, and RLS
+-- Create contracts table
 CREATE TABLE contracts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   vendor_id UUID REFERENCES vendors(id) ON DELETE CASCADE NOT NULL,
@@ -859,8 +797,6 @@ EXECUTE FUNCTION update_modified_column();
 -- Set up RLS
 ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies from backend-rules.md Rule
-```markdown
 -- RLS Policies from backend-rules.md Rule 1
 CREATE POLICY "Authenticated users can read all contracts" ON contracts FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Authenticated users can insert contracts" ON contracts FOR INSERT TO authenticated WITH CHECK (auth.uid() IS NOT NULL);
@@ -868,80 +804,21 @@ CREATE POLICY "Authenticated users can update contracts" ON contracts FOR UPDATE
 CREATE POLICY "Authenticated users can delete contracts" ON contracts FOR DELETE TO authenticated USING (true);
 ```
 **Validation Criteria:**
-- [ ] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
-- [ ] Foreign key relationship to vendors works correctly
-- [ ] Constraints (date check, status) work correctly
-- [ ] Row-level security policies are applied correctly
-- [ ] Triggers work correctly (`updated_at`)
+- [x] Table is created successfully in Supabase matching `backend-rules.md` Rule 1 schema
+- [x] Foreign key relationship to vendors works correctly
+- [x] Constraints (date check, status) work correctly
+- [x] Row-level security policies are applied correctly
+- [x] Triggers work correctly (`updated_at`)
 
-### Step 6.2: Create Contract API Functions
-**Task:** Implement contract CRUD operations *exactly* according to the patterns defined in `backend-rules.md` Rule 9.
-**File Operations:**
-- Create `src/lib/api/contracts.ts`:
-  *Implement functions:* `getContracts`, `getContractsByVendorId`, `getContractById`, `createContract`, `updateContract`, `deleteContract`.
-  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Contract`, `ContractInsert`, `ContractUpdate`), handle `created_by`, and include joins like `vendors(name)` where specified in Rule 9.
-**Validation Criteria:**
-- [ ] All CRUD functions are implemented as specified.
-- [ ] Error handling uses the `handleApiError` utility function.
-- [ ] TypeScript types from `Database` (`Contract`, `ContractInsert`, `ContractUpdate`) are properly applied.
-- [ ] `created_by` field is handled correctly on insert.
-- [ ] Joins for related data (e.g., vendor name) are included where specified.
-- [ ] Implementation strictly follows `backend-rules.md` Rule 9 patterns.
+**Git Commit:**
+```powershell
+git add src/lib/api/contracts.ts
+git commit -m "feat: create contracts API implementation"
+```
 
-### Step 6.3: Create Contract List Page
-**Task:** Create a page to display and manage contracts, following `frontend-rules.md`.
-**File Operations:**
-- Create `src/pages/contract/contract-list.tsx`:
-  A page showing contracts in a `shadcn/ui` Table. Fetch data using `getContracts` (Step 6.2). Include columns like Title, Vendor Name (from join), Status, Dates. Add search/filter (optional). Add actions (View, Edit, Delete). Implement loading, error, empty states.
-**Validation Criteria:**
-- [ ] Page fetches and displays contracts correctly using API function.
-- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`.
-- [ ] Table uses shadcn/ui components.
-- [ ] Data from related tables (e.g., Vendor Name) is displayed correctly.
-- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls.
-
-### Step 6.4: Create Contract Form Component
-**Task:** Create a reusable form for adding and editing contracts, following `frontend-rules.md`.
-**File Operations:**
-- Create `src/components/contract/contract-form.tsx`:
-  A form using `shadcn/ui` components (`Input` for title/value, `Textarea` for description, `Select` for vendor/status, Date pickers). Populate Vendor select by fetching vendors. Handle form state, submission (calling `createContract` or `updateContract`), loading state, error display. Validate dates (`end_date >= start_date`).
-**Validation Criteria:**
-- [ ] Form uses shadcn/ui components, including date pickers
-- [ ] Vendor selection dropdown is populated and works
-- [ ] Date validation and other field validations are implemented
-- [ ] Form handles both create and edit modes
-- [ ] Submission calls correct API functions and handles response/errors
-- [ ] **Accessibility Requirements:**
-  - [ ] All form controls have descriptive labels with proper `htmlFor` attributes
-  - [ ] Date pickers are keyboard accessible and announce selected dates
-  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
-  - [ ] Form can be navigated and submitted using keyboard only
-  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
-  - [ ] Loading state is announced to screen readers
-  - [ ] Success/error messages are announced via ARIA live regions
-
-### Step 6.5: Create Contract Detail Page
-**Task:** Create a page to view contract details, following `frontend-rules.md`.
-**File Operations:**
-- Create `src/pages/contract/contract-detail.tsx`:
-  A page fetching contract details using `getContractById`. Display information (including vendor name) using `shadcn/ui` Card or definition list. Include placeholders/sections for related documents. Add Edit/Delete actions. Handle loading/error states.
-**Validation Criteria:**
-- [ ] Page fetches and displays contract details correctly using API function.
-- [ ] Related vendor information is displayed.
-- [ ] Status is visually indicated (e.g., using badges).
-- [ ] Loading and error states are handled.
-- [ ] Related data (documents) placeholders exist.
-- [ ] Actions (edit, delete) are implemented.
-
-## Phase 7: Document Management Implementation
-
-### Step 7.1: Set Up Storage in Supabase
-**Task:** Configure Supabase storage for document management *exactly* as defined in `backend-rules.md` Rule 2.
-**Steps (to be performed in Supabase Dashboard or via Management API/CLI):**
-1. Create a new storage bucket named "documents".
-2. Set bucket to private.
-
-**SQL (for RLS policies and documents table, execute in Supabase SQL Editor):**
+### Step 3.2f: Create Documents Table and API Implementation
+**Task:** Set up the documents table in Supabase *exactly* as defined in `backend-rules.md` Rule 1.
+**SQL (to be executed in Supabase SQL Editor):**
 ```sql
 -- Create documents table
 CREATE TABLE documents (
@@ -1005,48 +882,362 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'documents' AND owner = auth.uid());
 ```
-
 **Validation Criteria:**
-- [ ] Storage bucket "documents" exists and is private
-- [ ] Documents table is created successfully
-- [ ] RLS policies for both `storage.objects` and `documents` table are applied correctly
-- [ ] Test upload/download/delete respects RLS policies
+- [x] Storage bucket "documents" exists and is private
+- [x] Documents table is created successfully
+- [x] RLS policies for both `storage.objects` and `documents` table are applied correctly
+- [x] Test upload/download/delete respects RLS policies
 
-### Step 7.2: Create Document API Functions
-**Task:** Implement document upload and management functions *exactly* according to the patterns defined in `backend-rules.md` Rule 10.
+**Git Commit:**
+```powershell
+git add src/lib/api/documents.ts
+git commit -m "feat: create documents API implementation"
+```
+
+## Phase 4: Vendor Management Implementation
+
+### Step 4.1: Create Vendor List Page
+**Task:** Create a page to display and manage vendors, following `frontend-rules.md` (Rules 6, 13, 14).
 **File Operations:**
-- Create `src/lib/api/documents.ts`:
-  *Implement functions:* `uploadDocument` (handling storage upload and DB insert), `getDocumentsByEntity`, `getDocumentById` (optional), `getDocumentUrl` (for signed URLs), `deleteDocument` (handling storage removal and DB delete).
-  *Strictly follow patterns:* Use `handleApiError`, Supabase generated types (`Document`, `DocumentInsert`), handle file paths, signed URLs, and combined storage/DB operations as shown in Rule 10.
+- Create `src/pages/vendor/vendor-list.tsx`:
+  A page showing vendors in a `shadcn/ui` Table with search, filter (optional), and actions (view, edit, delete buttons/links). Fetch data using `getVendors` from Step 4.2. Implement loading, error, and empty states.
 **Validation Criteria:**
-- [ ] `uploadDocument` function correctly uploads to storage and inserts DB record.
-- [ ] `getDocumentsByEntity` retrieves documents for a vendor/contract.
-- [ ] `getDocumentUrl` generates a working signed URL.
-- [ ] `deleteDocument` removes the file from storage and the record from the DB.
-- [ ] Error handling is consistent and uses `handleApiError`.
-- [ ] Implementation strictly follows `backend-rules.md` Rule 10 patterns.
+- [ ] Page fetches and displays vendors correctly using API function
+- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`
+- [ ] Table uses shadcn/ui components
+- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls (delete).
 
-### Step 7.3: Create Document Upload Component
-**Task:** Create a reusable component for document uploads, following `frontend-rules.md` Rule 18.
+**Git Commit:**
+```powershell
+git add src/pages/vendor/vendor-list.tsx
+git commit -m "feat: create vendor list page"
+```
+
+### Step 4.2: Create Vendor Form Component
+**Task:** Create a reusable form for adding and editing vendors, following `frontend-rules.md` Rule 7 (or 8 if using Zod).
 **File Operations:**
-- Create `src/components/document/document-upload.tsx`:
-  A component with a file input (`<Input type="file">`). On file selection, trigger the `uploadDocument` API function (Step 7.2). Display upload progress (optional, requires modifying API function signature). Show success/error messages. Pass `entityType` and `entityId` as props.
+- Create `src/components/vendor/vendor-form.tsx`:
+  A form component using `shadcn/ui` Form components (`Input`, `Select` for status, `Textarea` for notes/address). Handle form state, submission (calling `createVendor` or `updateVendor`), loading state, and error display.
 **Validation Criteria:**
-- [ ] File selection works correctly
-- [ ] `uploadDocument` API is called with correct parameters
-- [ ] Upload progress is displayed (if implemented)
-- [ ] Error handling is implemented using API response
-- [ ] Success feedback is shown (e.g., using Toast)
-- [ ] Component is reusable with `entityType` and `entityId` props
+- [ ] Form uses shadcn/ui components
+- [ ] Validation is implemented (HTML5 basic or Zod later)
+- [ ] Form handles both create and edit modes (e.g., via props)
+- [ ] TypeScript props are properly defined
+- [ ] Submission calls correct API functions and handles response/errors
 - [ ] **Accessibility Requirements:**
-  - [ ] File input has a descriptive label and instructions
-  - [ ] Upload progress is announced to screen readers
-  - [ ] Error messages are announced using `aria-invalid` and `aria-describedby`
-  - [ ] Component can be operated using keyboard only
+  - [ ] All form inputs have associated labels with proper `htmlFor` attributes
+  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
+  - [ ] Form can be navigated and submitted using keyboard only
+  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
+  - [ ] Loading state is announced to screen readers
   - [ ] Success/error messages are announced via ARIA live regions
-  - [ ] File type restrictions and size limits are clearly communicated
 
-### Step 7.4: Create Document List Component
+**Git Commit:**
+```powershell
+git add src/components/vendor/vendor-form.tsx
+git commit -m "feat: create vendor form component"
+```
+
+### Step 4.3: Create Vendor Detail Page
+**Task:** Create a page to view vendor details, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/vendor/vendor-detail.tsx`:
+  A page fetching vendor details using `getVendorById`. Display information using `shadcn/ui` Card or definition list style. Include placeholders/sections for related documents and contracts. Add Edit/Delete actions. Handle loading/error states.
+**Validation Criteria:**
+- [ ] Page fetches and displays vendor details correctly using API function
+- [ ] Loading and error states are handled
+- [ ] Related data (documents, contracts) placeholders exist
+- [ ] Actions (edit, delete) are implemented (linking to edit form, triggering delete API).
+
+**Git Commit:**
+```powershell
+git add src/pages/vendor/vendor-detail.tsx
+git commit -m "feat: create vendor detail page"
+```
+
+## Phase 5: Authentication System
+
+### Step 5.1: Create Auth Types and Contexts
+**Task:** Setup authentication types and React context *exactly* as defined in `auth-rules.md` Rule 3 & 4.
+**File Operations:**
+- Create `src/types/auth.ts`:
+```typescript
+// Copy types EXACTLY from auth-rules.md Rule 3
+import type { User, Session } from '@supabase/supabase-js';
+
+export type AuthUser = User; // Use Supabase User type directly
+
+export interface AuthState {
+  user: AuthUser | null;
+  session: Session | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+}
+
+export interface AuthContextType extends AuthState {
+  signIn: (email: string, password: string) => Promise<{
+    success: boolean; // Use success/error pattern
+    error: string | null
+  }>;
+  signUp: (email: string, password: string) => Promise<{
+    success: boolean; // Use success/error pattern
+    error: string | null
+  }>;
+  signOut: () => Promise<void>;
+}
+```
+- Create `src/context/auth-context.tsx`:
+  Implement the `AuthProvider` component *exactly* as specified in `auth-rules.md` Rule 4. Ensure it uses `supabase.auth.onAuthStateChange` and provides the context value matching `AuthContextType`.
+**Validation Criteria:**
+- [ ] Types (`AuthUser`, `AuthState`, `AuthContextType`) exactly match `auth-rules.md` Rule 3.
+- [ ] `AuthProvider` implementation exactly matches `auth-rules.md` Rule 4.
+- [ ] Context is properly typed and exported.
+- [ ] Provider correctly manages auth state using Supabase listeners.
+
+**Git Commit:**
+```powershell
+git add src/types/auth.ts src/context/auth-context.tsx
+git commit -m "feat: create auth types and context"
+```
+
+### Step 5.1b: Integrate AuthProvider
+**Task:** Integrate the `AuthProvider` with the application *exactly* as specified in `auth-rules.md` Rule 6.
+**File Operations:**
+- Update `src/main.tsx`:
+```typescript
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/auth-context';
+import App from './App';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+```
+
+**Validation Criteria:**
+- [ ] `AuthProvider` wraps the entire application
+- [ ] Provider is placed correctly in the component hierarchy (inside `BrowserRouter`)
+- [ ] Implementation exactly matches `auth-rules.md` Rule 6
+- [ ] Auth context is available throughout the application
+
+**Git Commit:**
+```powershell
+git add src/main.tsx
+git commit -m "feat: integrate AuthProvider"
+```
+
+### Step 5.2: Create Auth Hook
+**Task:** Implement a custom hook for authentication *exactly* as specified in `auth-rules.md` Rule 5.
+**File Operations:**
+- Create `src/hooks/use-auth.ts`:
+  Implement the `useAuth` hook exactly as shown in `auth-rules.md` Rule 5.
+**Validation Criteria:**
+- [ ] Hook provides access to auth context defined in Step 5.1
+- [ ] TypeScript return type is correctly defined (`AuthContextType`)
+- [ ] Hook includes check for provider existence.
+- [ ] Implementation exactly matches `auth-rules.md` Rule 5.
+
+**Git Commit:**
+```powershell
+git add src/hooks/use-auth.ts
+git commit -m "feat: create useAuth hook"
+```
+
+### Step 5.3: Create Login Page
+**Task:** Build a login page with email/password authentication using `auth-rules.md` Rule 8 as a structural guide.
+**File Operations:**
+- Create `src/pages/auth/login-page.tsx`:
+  A page with login form using `shadcn/ui` components (`Input`, `Button`, `Label`). Use the `useAuth` hook (Step 5.2) to call the `signIn` method. Handle form state, submission, loading state, and display errors based on the `{ success, error }` response. Redirect on success.
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components.
+- [ ] Validation is implemented (e.g., required fields).
+- [ ] `signIn` function from `useAuth` hook is called on submit.
+- [ ] Error messages from the `signIn` response are displayed to the user.
+- [ ] Success redirects to the dashboard or intended page.
+- [ ] Loading state disables the submit button.
+
+**Git Commit:**
+```powershell
+git add src/pages/auth/login-page.tsx
+git commit -m "feat: create login page"
+```
+
+### Step 5.4: Create Signup Page
+**Task:** Build a signup page for new user registration using `auth-rules.md` Rule 9 as a structural guide.
+**File Operations:**
+- Create `src/pages/auth/signup-page.tsx`:
+  A page with signup form using `shadcn/ui` components. Use the `useAuth` hook (Step 5.2) to call the `signUp` method. Handle form state, submission, loading state, password confirmation (optional but recommended), and display errors based on the `{ success, error }` response. Show confirmation message or redirect on success.
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components.
+- [ ] Validation is implemented (e.g., required fields, password rules).
+- [ ] `signUp` function from `useAuth` hook is called on submit.
+- [ ] Error messages from the `signUp` response are displayed to the user.
+- [ ] Success shows a confirmation message (e.g., "Check your email") or redirects to login.
+- [ ] Loading state disables the submit button.
+
+**Git Commit:**
+```powershell
+git add src/pages/auth/signup-page.tsx
+git commit -m "feat: create signup page"
+```
+
+### Step 5.5: Create Protected Route Component
+**Task:** Implement route protection based on authentication status *exactly* as specified in `auth-rules.md` Rule 7.
+**File Operations:**
+- Create `src/components/auth/protected-route.tsx`:
+  Implement the `ProtectedRoute` component exactly as shown in `auth-rules.md` Rule 7, using the `useAuth` hook.
+**Validation Criteria:**
+- [ ] Component correctly checks `isAuthenticated` and `isLoading` from `useAuth`.
+- [ ] Redirects unauthenticated users to `/login`.
+- [ ] Shows a loading indicator while `isLoading` is true.
+- [ ] Renders children when authenticated.
+- [ ] Implementation exactly matches `auth-rules.md` Rule 7.
+
+**Git Commit:**
+```powershell
+git add src/components/auth/protected-route.tsx
+git commit -m "feat: create ProtectedRoute component"
+```
+
+### Step 5.6: Update Router with Protected Routes
+**Task:** Apply route protection to appropriate routes using the pattern in `auth-rules.md` Rule 11.
+**File Operations:**
+- Update `src/router.tsx` (or wherever `AppRouter` is defined):
+  Wrap routes requiring authentication with the `ProtectedRoute` component (Step 5.5). Ensure public routes like `/login` and `/signup` remain outside the protected wrapper. Use layout nesting as shown in `frontend-rules.md` Rule 11.
+**Validation Criteria:**
+- [ ] Protected routes use the `ProtectedRoute` component.
+- [ ] Public routes remain accessible without authentication.
+- [ ] Redirects work correctly for unauthenticated access attempts.
+- [ ] Router structure integrates layout and protection as per rules.
+
+**Git Commit:**
+```powershell
+git add src/router.tsx
+git commit -m "feat: apply route protection"
+```
+
+### Step 5.7: Create Logout Component
+**Task:** Implement the logout button component *exactly* as specified in `auth-rules.md` Rule 10.
+**File Operations:**
+- Create `src/components/auth/logout-button.tsx`:
+```typescript
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+
+export function LogoutButton() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  return (
+    <Button
+      onClick={handleLogout}
+      variant="ghost"
+      className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+    >
+      Logout
+    </Button>
+  );
+}
+```
+
+- Update `src/components/layout/main-layout.tsx` to include the `LogoutButton` in the header/navigation area.
+
+**Validation Criteria:**
+- [ ] Component implementation matches `auth-rules.md` Rule 10 exactly
+- [ ] Logout functionality works correctly using `useAuth` hook
+- [ ] Navigation to login page occurs after successful logout
+- [ ] Button styling is consistent with the application theme
+- [ ] Component is properly integrated into the main layout
+
+**Git Commit:**
+```powershell
+git add src/components/auth/logout-button.tsx
+git commit -m "feat: create LogoutButton component"
+```
+
+## Phase 6: Contract Management Implementation
+
+### Step 6.1: Create Contract List Page
+**Task:** Create a page to display and manage contracts, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/contract/contract-list.tsx`:
+  A page showing contracts in a `shadcn/ui` Table. Fetch data using `getContracts` (Step 6.2). Include columns like Title, Vendor Name (from join), Status, Dates. Add search/filter (optional). Add actions (View, Edit, Delete). Implement loading, error, empty states.
+**Validation Criteria:**
+- [ ] Page fetches and displays contracts correctly using API function.
+- [ ] Loading, error, and empty states are handled appropriately per `frontend-rules.md`.
+- [ ] Table uses shadcn/ui components.
+- [ ] Data from related tables (e.g., Vendor Name) is displayed correctly.
+- [ ] Actions (view, edit, delete) link to appropriate routes or trigger API calls.
+
+**Git Commit:**
+```powershell
+git add src/pages/contract/contract-list.tsx
+git commit -m "feat: create contract list page"
+```
+
+### Step 6.2: Create Contract Form Component
+**Task:** Create a reusable form for adding and editing contracts, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/components/contract/contract-form.tsx`:
+  A form using `shadcn/ui` components (`Input` for title/value, `Textarea` for description, `Select` for vendor/status, Date pickers). Populate Vendor select by fetching vendors. Handle form state, submission (calling `createContract` or `updateContract`), loading state, error display. Validate dates (`end_date >= start_date`).
+**Validation Criteria:**
+- [ ] Form uses shadcn/ui components, including date pickers
+- [ ] Vendor selection dropdown is populated and works
+- [ ] Date validation and other field validations are implemented
+- [ ] Form handles both create and edit modes
+- [ ] Submission calls correct API functions and handles response/errors
+- [ ] **Accessibility Requirements:**
+  - [ ] All form controls have descriptive labels with proper `htmlFor` attributes
+  - [ ] Date pickers are keyboard accessible and announce selected dates
+  - [ ] Error messages are announced to screen readers using `aria-invalid` and `aria-describedby`
+  - [ ] Form can be navigated and submitted using keyboard only
+  - [ ] Color contrast meets WCAG standards (4.5:1 minimum)
+  - [ ] Loading state is announced to screen readers
+  - [ ] Success/error messages are announced via ARIA live regions
+
+**Git Commit:**
+```powershell
+git add src/components/contract/contract-form.tsx
+git commit -m "feat: create contract form component"
+```
+
+### Step 6.3: Create Contract Detail Page
+**Task:** Create a page to view contract details, following `frontend-rules.md`.
+**File Operations:**
+- Create `src/pages/contract/contract-detail.tsx`:
+  A page fetching contract details using `getContractById`. Display information (including vendor name) using `shadcn/ui` Card or definition list. Include placeholders/sections for related documents. Add Edit/Delete actions. Handle loading/error states.
+**Validation Criteria:**
+- [ ] Page fetches and displays contract details correctly using API function.
+- [ ] Related vendor information is displayed.
+- [ ] Status is visually indicated (e.g., using badges).
+- [ ] Loading and error states are handled.
+- [ ] Related data (documents) placeholders exist.
+- [ ] Actions (edit, delete) are implemented.
+
+**Git Commit:**
+```powershell
+git add src/pages/contract/contract-detail.tsx
+git commit -m "feat: create contract detail page"
+```
+
+## Phase 7: Document Management Implementation
+
+### Step 7.1: Create Document List Component
 **Task:** Create a component to display documents, following `frontend-rules.md`.
 **File Operations:**
 - Create `src/components/document/document-list.tsx`:
@@ -1057,7 +1248,13 @@ USING (bucket_id = 'documents' AND owner = auth.uid());
 - [ ] Delete action calls the `deleteDocument` API and updates the list on success.
 - [ ] Empty and loading/error states are handled appropriately.
 
-### Step 7.5: Integrate Documents with Vendor and Contract Pages
+**Git Commit:**
+```powershell
+git add src/components/document/document-list.tsx
+git commit -m "feat: create document list component"
+```
+
+### Step 7.2: Integrate Documents with Vendor and Contract Pages
 **Task:** Add document management sections to vendor and contract detail pages.
 **File Operations:**
 - Update `src/pages/vendor/vendor-detail.tsx`: Add the `DocumentUpload` (Step 7.3) and `DocumentList` (Step 7.4) components, passing the correct `entityType` ('vendor') and `entityId`.
@@ -1067,6 +1264,12 @@ USING (bucket_id = 'documents' AND owner = auth.uid());
 - [ ] Document list component is present and functional, displaying relevant documents.
 - [ ] Uploads/deletions correctly reflect in the list component after refresh/real-time update.
 - [ ] UI integration is clean and consistent.
+
+**Git Commit:**
+```powershell
+git add src/pages/vendor/vendor-detail.tsx src/pages/contract/contract-detail.tsx
+git commit -m "feat: integrate documents with vendor and contract detail pages"
+```
 
 ## Phase 8: Dashboard and Final Polish
 
@@ -1080,6 +1283,12 @@ USING (bucket_id = 'documents' AND owner = auth.uid());
 - [ ] Recent items list is populated (if implemented).
 - [ ] Layout uses `shadcn/ui` components effectively.
 - [ ] Loading/error states are handled for data fetching.
+
+**Git Commit:**
+```powershell
+git add src/pages/dashboard/dashboard-page.tsx
+git commit -m "feat: create dashboard page"
+```
 
 ### Step 8.2: Add Form Validation with Zod
 **Task:** Add schema validation to all forms using Zod and react-hook-form, following `frontend-rules.md` Rule 8.
@@ -1100,6 +1309,12 @@ npm install zod react-hook-form @hookform/resolvers
 - [ ] Validation errors are displayed correctly next to form fields.
 - [ ] Form submission is blocked on validation failure.
 
+**Git Commit:**
+```powershell
+git add src/schemas/vendor.schema.ts src/schemas/contract.schema.ts
+git commit -m "feat: create Zod schema for vendor and contract forms"
+```
+
 ### Step 8.3: Add Toast Notifications
 **Task:** Implement toast notifications for user feedback using `shadcn/ui` Toast.
 **File Operations:**
@@ -1114,6 +1329,12 @@ npm install zod react-hook-form @hookform/resolvers
 - [ ] Error messages (e.g., "Failed to delete contract") are shown when API calls fail.
 - [ ] Toast styling is consistent with the theme.
 
+**Git Commit:**
+```powershell
+git add src/components/layout/main-layout.tsx
+git commit -m "feat: add Toaster component"
+```
+
 ### Step 8.4: Implement Error Boundaries
 **Task:** Add React Error Boundaries to handle unexpected rendering errors gracefully, following `frontend-rules.md`.
 **File Operations:**
@@ -1126,6 +1347,12 @@ npm install zod react-hook-form @hookform/resolvers
 - [ ] A user-friendly fallback UI is displayed instead of a blank screen or broken app.
 - [ ] Errors are logged via `componentDidCatch` for debugging.
 
+**Git Commit:**
+```powershell
+git add src/components/error-boundary.tsx
+git commit -m "feat: create ErrorBoundary component"
+```
+
 ### Step 8.5: Create Documentation
 **Task:** Create project documentation.
 **File Operations:**
@@ -1136,6 +1363,12 @@ npm install zod react-hook-form @hookform/resolvers
 - [ ] Installation and setup instructions are clear and accurate.
 - [ ] Environment variable requirements are documented.
 - [ ] Basic usage instructions are provided.
+
+**Git Commit:**
+```powershell
+git add README.md
+git commit -m "feat: create README.md"
+```
 
 ### Step 8.6: Final Testing and Deployment Preparation
 **Task:** Perform final testing and prepare for deployment.
@@ -1154,5 +1387,10 @@ npm install zod react-hook-form @hookform/resolvers
 - [ ] The application is responsive and usable on major screen sizes.
 - [ ] Deployment environment variables are identified and ready.
 
-## End of Implementation Plan
+**Git Commit:**
+```powershell
+git add .
+git commit -m "feat: perform final testing and prepare for deployment"
 ```
+
+## End of Implementation Plan

@@ -1,10 +1,9 @@
 import { PageHeader } from '@/components/layout/page-header';
-// Remove LogoutButton import if it's included in the header via MainLayout
-// import { LogoutButton } from '@/components/auth/logout-button';
-import { SummaryCard } from '@/components/dashboard/summary-card'; // Import the new component
-import { RecentActivity } from '@/components/dashboard/recent-activity'; // Import RecentActivity
-import { ChartPlaceholder } from '@/components/dashboard/chart-placeholder'; // Import ChartPlaceholder
-import { Users, FileText, Package, PieChart } from 'lucide-react'; // Add more icons if needed
+import { SummaryCard } from '@/components/dashboard/summary-card';
+import { RecentActivity } from '@/components/dashboard/recent-activity';
+import { ChartPlaceholder } from '@/components/dashboard/chart-placeholder';
+import { LogoutButton } from '@/components/auth/logout-button';
+import { Users, FileText, Package, PieChart } from 'lucide-react';
 
 export function DashboardPage() {
   // <ai_context>
@@ -18,11 +17,12 @@ export function DashboardPage() {
   // </ai_context>
   return (
     <div className="flex flex-col gap-8 pb-8">
-      {/* Page Header with welcome message */}
+      {/* Page Header with welcome message and logout button */}
       <div className="space-y-2">
         <PageHeader
           title="Dashboard"
           description="Welcome to VMP Plus. Overview of your vendor management activities."
+          actions={<LogoutButton />}
         />
       </div>
 

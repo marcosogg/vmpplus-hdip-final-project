@@ -22,7 +22,7 @@ export function LoginPage() {
       const { success, error } = await signIn(email, password);
       
       if (success) {
-        navigate('/dashboard');
+        navigate('/app/dashboard');
       } else {
         setError(error || 'Failed to sign in');
       }

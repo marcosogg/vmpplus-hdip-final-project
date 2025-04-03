@@ -13,6 +13,8 @@ import { LandingPage } from './pages/landing/landing-page';
 import { DashboardPage } from './pages/dashboard/dashboard-page';
 import { VendorListPage } from './pages/vendor/vendor-list';
 import { VendorDetailPage } from './pages/vendor/vendor-detail';
+import { VendorCreatePage } from './pages/vendor/vendor-create';
+import { VendorEditPage } from './pages/vendor/vendor-edit';
 import { ContractListPage } from './pages/contract/contract-list';
 import { ContractDetailPage } from './pages/contract/contract-detail';
 
@@ -55,7 +57,9 @@ export function AppRouter() {
         
         {/* Vendor routes */}
         <Route path="vendors" element={<VendorListPage />} />
+        <Route path="vendors/new" element={<VendorCreatePage />} />
         <Route path="vendors/:id" element={<VendorDetailPage />} />
+        <Route path="vendors/:id/edit" element={<VendorEditPage />} />
         
         {/* Contract routes */}
         <Route path="contracts" element={<ContractListPage />} />

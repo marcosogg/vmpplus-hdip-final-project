@@ -38,20 +38,24 @@ export async function getVendorById(id: string): Promise<ApiResponse<Vendor>> {
 
 // Create a new vendor
 export async function createVendor(vendor: VendorInsert): Promise<ApiResponse<Vendor>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    // Get the current user first
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+    
+    // Then insert the vendor with the user ID
+    const { data, error } = await supabase
       .from('vendors')
       .insert({
         ...vendor,
-        created_by: supabase.auth.getUser().then(({ data }) => data.user?.id)
+        created_by: userId
       })
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Vendor;
-      })
-  );
+      .single();
+      
+    if (error) throw error;
+    return data as Vendor;
+  });
 }
 
 // Update an existing vendor

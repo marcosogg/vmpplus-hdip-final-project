@@ -5,15 +5,15 @@ import { cn } from '@/lib/utils';
 const navItems = [
   {
     title: 'Dashboard',
-    href: '/dashboard',
+    href: '/app/dashboard',
   },
   {
     title: 'Vendors',
-    href: '/vendors',
+    href: '/app/vendors',
   },
   {
     title: 'Contracts',
-    href: '/contracts',
+    href: '/app/contracts',
   },
 ] as const;
 

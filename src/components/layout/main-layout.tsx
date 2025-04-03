@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { SidebarNav } from './sidebar-nav';
 import { Toaster } from '@/components/ui/toaster';
+import { LogoutButton } from '@/components/auth/logout-button';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -14,12 +15,15 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
-          <div className="mr-4 flex">
+          <div className="mr-auto flex">
             <Link to="/app/dashboard" className="mr-6 flex items-center space-x-2">
               <span className="font-bold">VMP PLUS</span>
             </Link>
           </div>
-          {/* Add header content here later */}
+          {/* Right side of header */}
+          <div className="flex items-center space-x-4">
+            <LogoutButton />
+          </div>
         </div>
       </header>
 

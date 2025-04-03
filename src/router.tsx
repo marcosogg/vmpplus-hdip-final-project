@@ -17,6 +17,8 @@ import { VendorCreatePage } from './pages/vendor/vendor-create';
 import { VendorEditPage } from './pages/vendor/vendor-edit';
 import { ContractListPage } from './pages/contract/contract-list';
 import { ContractDetailPage } from './pages/contract/contract-detail';
+import { ContractCreatePage } from './pages/contract/contract-create';
+import { ContractEditPage } from './pages/contract/contract-edit';
 
 // Not found page
 const NotFoundPage = () => (
@@ -63,7 +65,9 @@ export function AppRouter() {
         
         {/* Contract routes */}
         <Route path="contracts" element={<ContractListPage />} />
+        <Route path="contracts/new" element={<ContractCreatePage />} />
         <Route path="contracts/:id" element={<ContractDetailPage />} />
+        <Route path="contracts/:id/edit" element={<ContractEditPage />} />
       </Route>
       
       {/* 404 route */}

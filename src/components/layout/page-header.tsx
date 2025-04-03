@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 interface PageHeaderProps {
   title: string;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
 }
 
@@ -12,7 +12,7 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {description && (
-          <p className="text-muted-foreground mt-1">{description}</p>
+          <div className="text-muted-foreground mt-1">{description}</div>
         )}
       </div>
       {actions && <div className="ml-4">{actions}</div>}

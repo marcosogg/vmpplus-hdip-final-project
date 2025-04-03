@@ -2,7 +2,6 @@ import { PageHeader } from '@/components/layout/page-header';
 import { SummaryCard } from '@/components/dashboard/summary-card';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { ChartPlaceholder } from '@/components/dashboard/chart-placeholder';
-import { LogoutButton } from '@/components/auth/logout-button';
 import { Users, FileText, Package, PieChart } from 'lucide-react';
 
 export function DashboardPage() {
@@ -17,12 +16,11 @@ export function DashboardPage() {
   // </ai_context>
   return (
     <div className="flex flex-col gap-8 pb-8">
-      {/* Page Header with welcome message and logout button */}
+      {/* Page Header without the explicit logout button */}
       <div className="space-y-2">
         <PageHeader
           title="Dashboard"
           description="Welcome to VMP Plus. Overview of your vendor management activities."
-          actions={<LogoutButton />}
         />
       </div>
 

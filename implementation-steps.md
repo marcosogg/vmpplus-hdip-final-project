@@ -43,7 +43,7 @@ To prevent similar errors throughout the project development:
 
 # Git Workflow Integration
 
-To ensure proper version control throughout the project, we'll follow the Git Flow principles outlined in the Git Flow Plan. This section provides instructions on how to integrate Git commits with our implementation steps.
+To ensure proper version control throughout the project, we'll follow the Git Flow principles outlined in the Git Flow Plan. This section provides detailed instructions on how to integrate Git commits with our implementation steps, using PowerShell for all commands.
 
 ## Initial Repository Setup
 
@@ -62,41 +62,144 @@ git branch -M main
 
 # Create and checkout develop branch
 git checkout -b develop
+git push -u origin develop
 ```
 
-## Git Workflow for Each Phase
+## Complete Git Workflow for Each Phase
 
-For each remaining phase (3 and beyond), follow this workflow:
+For each phase, follow this comprehensive workflow using CLI commands:
 
-1. **Start Phase with Feature Branch:**
-   ```powershell
-   git checkout develop
-   git checkout -b feature/phase-name
-   ```
+### 1. Starting a New Phase
 
-2. **Commit After Each Step:**
-   Make regular, atomic commits after completing each step using Conventional Commits format.
+```powershell
+# Ensure you're on the develop branch and it's up to date
+git checkout develop
+git pull origin develop
 
-3. **Complete Phase:**
-   ```powershell
-   git push -u origin feature/phase-name
-   # Create PR to merge to develop (via GitHub/GitLab UI)
-   # After PR is merged:
-   git checkout develop
-   git pull origin develop
-   git branch -d feature/phase-name
-   ```
+# Create and checkout a new feature branch
+git checkout -b feature/phase-name
+```
 
-4. **Milestone Releases:**
-   When a significant milestone is reached:
-   ```powershell
-   # Create PR from develop to main (via UI)
-   # After PR is merged:
-   git checkout main
-   git pull origin main
-   git tag -a v0.1.0 -m "Release version 0.1.0: [Milestone Description]"
-   git push origin v0.1.0
-   ```
+### 2. During Development
+
+Make regular, atomic commits after completing each step:
+
+```powershell
+# Stage and commit changes for a completed step
+git add .
+git commit -m "feat: implement specific feature X"
+```
+
+### 3. Completing a Phase
+
+When all tasks for the phase are complete:
+
+```powershell
+# Stage all remaining changes
+git add .
+
+# Commit with a phase completion message
+git commit -m "feat: complete phase X implementation"
+
+# Push your feature branch to the remote repository
+git push -u origin feature/phase-name
+```
+
+### 4. Creating and Merging Pull Request
+
+For GitHub (using GitHub CLI):
+
+```powershell
+# Install GitHub CLI if not already installed
+# winget install GitHub.cli
+
+# Authenticate (if needed)
+# gh auth login
+
+# Create pull request
+gh pr create --base develop --head feature/phase-name --title "Feature: Complete Phase X Implementation" --body "Implements all requirements for Phase X including components A, B, and C."
+
+# Check PR status
+gh pr view feature/phase-name
+
+# Merge the pull request
+gh pr merge feature/phase-name --merge
+```
+
+For GitLab (using GitLab CLI):
+
+```powershell
+# Install GitLab CLI if not already installed
+# winget install gitlab.cli
+
+# Create a merge request
+glab mr create --base develop --head feature/phase-name --title "Feature: Complete Phase X Implementation" --description "Implements all requirements for Phase X including components A, B, and C."
+
+# Merge the request
+glab mr merge
+```
+
+Alternative manually-executed merge (if CLI tools aren't available):
+
+```powershell
+# Switch to develop branch
+git checkout develop
+git pull origin develop
+
+# Merge the feature branch
+git merge --no-ff feature/phase-name -m "Merge feature/phase-name into develop"
+
+# Push the changes to remote
+git push origin develop
+```
+
+### 5. Clean Up
+
+After the PR is merged:
+
+```powershell
+# Switch to develop branch and pull the latest changes
+git checkout develop
+git pull origin develop
+
+# Delete the local feature branch
+git branch -d feature/phase-name
+
+# Delete the remote feature branch
+git push origin --delete feature/phase-name
+```
+
+### 6. Start Next Phase
+
+```powershell
+# Create a new feature branch for the next phase
+git checkout -b feature/next-phase-name
+```
+
+## Milestone Releases
+
+When a significant milestone is reached:
+
+```powershell
+# Ensure develop is up to date
+git checkout develop
+git pull origin develop
+
+# Merge develop into main
+git checkout main
+git pull origin main
+git merge --no-ff develop -m "Release version X.Y.Z: [Milestone Description]"
+
+# Tag the release
+git tag -a vX.Y.Z -m "Release version X.Y.Z: [Milestone Description]"
+
+# Push changes and tags
+git push origin main
+git push origin vX.Y.Z
+
+# Return to develop branch
+git checkout develop
+```
 
 Let's proceed with the implementation plan, now with Git steps integrated at each point.
 

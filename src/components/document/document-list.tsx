@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getDocumentsByEntity, getDocumentUrl, deleteDocument } from '@/lib/api/documents';
 import { Document } from '@/lib/api/documents';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { FileIcon, TrashIcon, DownloadIcon, EyeIcon } from 'lucide-react';
 
 interface DocumentListProps {

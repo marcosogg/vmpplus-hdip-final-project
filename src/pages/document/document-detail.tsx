@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { getDocumentById, getDocumentUrl, deleteDocument } from '@/lib/api/documents';
 import { Document } from '@/lib/api/documents';
 import { DocumentPreview } from '@/components/document/document-preview';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DownloadIcon, ArrowLeftIcon, TrashIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';

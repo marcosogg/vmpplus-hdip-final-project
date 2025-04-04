@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { getDocumentById, getDocumentUrl } from '@/lib/api/documents';
 import { Document } from '@/lib/api/documents';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { DownloadIcon, FileIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 interface DocumentPreviewProps {

@@ -10,15 +10,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Edit, MoreVertical, Trash2, FileText } from 'lucide-react';
+import { DocumentList } from '@/components/document/document-list';
+import { DocumentUpload } from '@/components/document/document-upload';
 
 export function ContractDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [contract, setContract] = useState<Contract | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showUploadDocumentDialog, setShowUploadDocumentDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -102,6 +106,14 @@ export function ContractDetailPage() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDocumentUploadSuccess = () => {
+    setShowUploadDocumentDialog(false);
+    toast({
+      title: "Success",
+      description: "Document uploaded successfully",
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -274,29 +286,36 @@ export function ContractDetailPage() {
         </Card>
       </div>
 
-      {/* Documents Section - Placeholder */}
+      {/* Documents Section */}
       <div className="mt-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Documents</CardTitle>
-            <Button size="sm" disabled>
-              <FileText className="mr-2 h-4 w-4" />
-              Upload Document
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <FileText className="h-12 w-12 text-gray-300" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No documents yet</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Documents related to this contract will appear here.
-              </p>
-              <p className="mt-4 text-xs text-amber-600">
-                Document management functionality will be implemented in a future phase.
-              </p>
+        <DocumentList 
+          entityType="contract"
+          entityId={id!}
+          showUploadButton
+          onUploadClick={() => setShowUploadDocumentDialog(true)}
+        />
+        
+        {/* Upload Document Dialog */}
+        <Dialog 
+          open={showUploadDocumentDialog} 
+          onOpenChange={setShowUploadDocumentDialog}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload Document for {contract.title}</DialogTitle>
+              <DialogDescription>
+                Add a document to this contract record.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <DocumentUpload 
+                entityType="contract"
+                entityId={id!}
+                onSuccess={handleDocumentUploadSuccess}
+              />
             </div>
-          </CardContent>
-        </Card>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

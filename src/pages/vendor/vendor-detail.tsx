@@ -16,6 +16,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { EditIcon, Trash2Icon, FileIcon } from 'lucide-react';
+import { DocumentList } from '@/components/document/document-list';
+import { DocumentUpload } from '@/components/document/document-upload';
 
 export function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,7 @@ export function VendorDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showUploadDocumentDialog, setShowUploadDocumentDialog] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -97,6 +100,14 @@ export function VendorDetailPage() {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
     }
+  };
+
+  const handleDocumentUploadSuccess = () => {
+    setShowUploadDocumentDialog(false);
+    toast({
+      title: "Success",
+      description: "Document uploaded successfully",
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -204,102 +215,82 @@ export function VendorDetailPage() {
         }
       />
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        {/* Vendor Information Card */}
-        <Card className="md:col-span-2">
+      <div className="grid grid-cols-1 gap-6 mt-6">
+        {/* Vendor Details Card */}
+        <Card>
           <CardHeader>
             <CardTitle>Vendor Information</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Status</dt>
-                <dd className="mt-1">{renderStatusBadge(vendor.status)}</dd>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Name</h3>
+                <p className="mt-1">{vendor.name}</p>
               </div>
-              
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Email</dt>
-                <dd className="mt-1">
-                  {vendor.email ? (
-                    <a href={`mailto:${vendor.email}`} className="text-blue-600 hover:underline">
-                      {vendor.email}
-                    </a>
-                  ) : (
-                    <span className="text-gray-400">Not provided</span>
-                  )}
-                </dd>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                <p className="mt-1">{renderStatusBadge(vendor.status)}</p>
               </div>
-              
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                <dd className="mt-1">
-                  {vendor.phone ? (
-                    <a href={`tel:${vendor.phone}`} className="text-blue-600 hover:underline">
-                      {vendor.phone}
-                    </a>
-                  ) : (
-                    <span className="text-gray-400">Not provided</span>
-                  )}
-                </dd>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Email</h3>
+                <p className="mt-1">{vendor.email || 'N/A'}</p>
               </div>
-              
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Address</dt>
-                <dd className="mt-1">
-                  {vendor.address || <span className="text-gray-400">Not provided</span>}
-                </dd>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Phone</h3>
+                <p className="mt-1">{vendor.phone || 'N/A'}</p>
               </div>
-              
-              <div className="col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Notes</dt>
-                <dd className="mt-1 whitespace-pre-wrap">
-                  {vendor.notes || <span className="text-gray-400">No notes</span>}
-                </dd>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Address</h3>
+                <p className="mt-1">{vendor.address || 'N/A'}</p>
               </div>
-              
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Created</dt>
-                <dd className="mt-1">{formatDate(vendor.created_at)}</dd>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Created</h3>
+                <p className="mt-1">{formatDate(vendor.created_at)}</p>
               </div>
-              
-              <div className="col-span-1">
-                <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
-                <dd className="mt-1">{formatDate(vendor.updated_at)}</dd>
+            </div>
+            
+            {vendor.notes && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-500">Notes</h3>
+                <p className="mt-1 text-gray-900 whitespace-pre-line">{vendor.notes}</p>
               </div>
-            </dl>
+            )}
           </CardContent>
         </Card>
         
-        {/* Related Information Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Related Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Contracts</h3>
-                {/* This will be replaced with actual contracts list in a future phase */}
-                <div className="p-4 bg-gray-50 rounded-md text-center">
-                  <p className="text-gray-400 text-sm">
-                    Contract management will be implemented in a future phase.
-                  </p>
-                </div>
+        {/* Contracts section would go here */}
+        
+        {/* Documents section */}
+        <div className="mt-6">
+          <DocumentList 
+            entityType="vendor"
+            entityId={id!}
+            showUploadButton
+            onUploadClick={() => setShowUploadDocumentDialog(true)}
+          />
+          
+          {/* Upload Document Dialog */}
+          <Dialog 
+            open={showUploadDocumentDialog} 
+            onOpenChange={setShowUploadDocumentDialog}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Upload Document for {vendor.name}</DialogTitle>
+                <DialogDescription>
+                  Add a document to this vendor record.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <DocumentUpload 
+                  entityType="vendor"
+                  entityId={id!}
+                  onSuccess={handleDocumentUploadSuccess}
+                />
               </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Documents</h3>
-                {/* This will be replaced with actual documents list in a future phase */}
-                <div className="p-4 bg-gray-50 rounded-md text-center">
-                  <FileIcon className="h-10 w-10 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">
-                    Document management will be implemented in a future phase.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );

@@ -15,6 +15,10 @@ const navItems = [
     title: 'Contracts',
     href: '/app/contracts',
   },
+  {
+    title: 'Documents',
+    href: '/app/documents',
+  },
 ] as const;
 
 export function SidebarNav() {

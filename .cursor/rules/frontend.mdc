@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Frontend Implementation Rules for VMP PLUS
 
 This document outlines the strict requirements for the frontend implementation of the VMP PLUS project. Follow these rules precisely to ensure a consistent, functional, and maintainable user interface.

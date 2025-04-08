@@ -27,4 +27,7 @@ dist-ssr
 *.sw?
 
 # md files
-*.md
+
+#MDC FILES
+*.mdc
+.cursor/rules/*.mdc

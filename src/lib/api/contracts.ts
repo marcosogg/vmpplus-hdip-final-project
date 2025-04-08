@@ -116,4 +116,35 @@ export async function deleteContract(id: string): Promise<ApiResponse<null>> {
         return null;
       })
   );
+}
+
+// Get total count of contracts
+export async function getContractCount(): Promise<ApiResponse<number>> {
+  return handleApiError(
+    supabase
+      .from('contracts')
+      .select('*', { count: 'exact', head: true })
+      .then(({ count, error }) => {
+        if (error) throw error;
+        return count || 0;
+      })
+  );
+}
+
+// Get count of contracts expiring soon (within 30 days)
+export async function getExpiringContractCount(): Promise<ApiResponse<number>> {
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  return handleApiError(
+    supabase
+      .from('contracts')
+      .select('*', { count: 'exact', head: true })
+      .lte('end_date', thirtyDaysFromNow.toISOString())
+      .gt('end_date', new Date().toISOString())
+      .then(({ count, error }) => {
+        if (error) throw error;
+        return count || 0;
+      })
+  );
 } 

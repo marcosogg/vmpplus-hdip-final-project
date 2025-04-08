@@ -132,4 +132,17 @@ export async function deleteDocument(id: string): Promise<ApiResponse<null>> {
     
     return null;
   });
+}
+
+// Get total count of documents
+export async function getDocumentCount(): Promise<ApiResponse<number>> {
+  return handleApiError(
+    supabase
+      .from('documents')
+      .select('*', { count: 'exact', head: true })
+      .then(({ count, error }) => {
+        if (error) throw error;
+        return count || 0;
+      })
+  );
 } 

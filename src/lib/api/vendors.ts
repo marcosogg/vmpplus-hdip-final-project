@@ -89,4 +89,17 @@ export async function deleteVendor(id: string): Promise<ApiResponse<null>> {
         return null;
       })
   );
+}
+
+// Get total count of vendors
+export async function getVendorCount(): Promise<ApiResponse<number>> {
+  return handleApiError(
+    supabase
+      .from('vendors')
+      .select('*', { count: 'exact', head: true })
+      .then(({ count, error }) => {
+        if (error) throw error;
+        return count || 0;
+      })
+  );
 } 

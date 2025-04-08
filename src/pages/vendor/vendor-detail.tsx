@@ -70,16 +70,20 @@ export function VendorDetailPage() {
     if (!id) return;
     
     setIsDeleting(true);
+    setError(null);
     
     try {
-      const { error } = await deleteVendor(id);
+      const { error: deleteError } = await deleteVendor(id);
       
-      if (error) {
+      if (deleteError) {
+        const errorMessage = `Failed to delete vendor: ${deleteError.message}`;
+        setError(errorMessage);
         toast({
           title: "Error",
-          description: `Failed to delete vendor: ${error.message}`,
+          description: errorMessage,
           variant: "destructive",
         });
+        setIsDeleting(false);
         return;
       }
       
@@ -88,17 +92,21 @@ export function VendorDetailPage() {
         description: "Vendor deleted successfully",
       });
       
+      setIsDeleteDialogOpen(false);
       navigate('/app/vendors');
     } catch (err) {
       console.error(err);
+      const errorMessage = "An unexpected error occurred while deleting the vendor";
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
+      if (error) {
+        setIsDeleting(false);
+      }
     }
   };
 

@@ -70,13 +70,16 @@ export function ContractListPage() {
   }
 
   async function handleDeleteContract(id: string) {
+    setError(null);
     try {
-      const { error } = await deleteContract(id);
+      const { error: deleteError } = await deleteContract(id);
       
-      if (error) {
+      if (deleteError) {
+        const errorMessage = `Failed to delete contract: ${deleteError.message}`;
+        setError(errorMessage);
         toast({
           title: "Error",
-          description: `Failed to delete contract: ${error.message}`,
+          description: errorMessage,
           variant: "destructive",
         });
         return;
@@ -91,9 +94,11 @@ export function ContractListPage() {
       });
     } catch (err) {
       console.error(err);
+      const errorMessage = "An unexpected error occurred while deleting the contract";
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     }

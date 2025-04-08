@@ -101,13 +101,16 @@ export function VendorListPage() {
   }
 
   async function handleDeleteVendor(id: string) {
+    setError(null); // Clear previous errors before attempting delete
     try {
       const { error } = await deleteVendor(id);
       
       if (error) {
+        const errorMessage = `Failed to delete vendor: ${error.message}`;
+        setError(errorMessage); // Set the error state
         toast({
           title: "Error",
-          description: `Failed to delete vendor: ${error.message}`,
+          description: errorMessage,
           variant: "destructive",
         });
         return;
@@ -122,9 +125,11 @@ export function VendorListPage() {
       });
     } catch (err) {
       console.error(err);
+      const errorMessage = "An unexpected error occurred while deleting the vendor";
+      setError(errorMessage); // Set the error state
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     }

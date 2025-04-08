@@ -3,6 +3,9 @@ import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
 import { Database } from '@/types/supabase';
 
+// TODO: Implement profile viewing/editing page using these API calls.
+// Currently, these API functions are defined but not utilized in the frontend implementation.
+
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 

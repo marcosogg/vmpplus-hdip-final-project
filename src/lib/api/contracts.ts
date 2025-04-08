@@ -1,14 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
-import { Database } from '@/types/supabase';
-
-export type Contract = Database['public']['Tables']['contracts']['Row'];
-export type ContractInsert = Database['public']['Tables']['contracts']['Insert'];
-export type ContractUpdate = Database['public']['Tables']['contracts']['Update'];
+import { Contract, ContractInsert, ContractUpdate, ContractWithVendor } from '@/types/contract';
 
 // Get all contracts
-export async function getContracts(): Promise<ApiResponse<Contract[]>> {
+export async function getContracts(): Promise<ApiResponse<ContractWithVendor[]>> {
   return handleApiError(
     supabase
       .from('contracts')
@@ -16,7 +12,7 @@ export async function getContracts(): Promise<ApiResponse<Contract[]>> {
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (error) throw error;
-        return data as unknown as Contract[];
+        return data as ContractWithVendor[];
       })
   );
 }
@@ -37,7 +33,7 @@ export async function getContractsByVendorId(vendorId: string): Promise<ApiRespo
 }
 
 // Get a single contract by ID
-export async function getContractById(id: string): Promise<ApiResponse<Contract>> {
+export async function getContractById(id: string): Promise<ApiResponse<ContractWithVendor>> {
   return handleApiError(
     supabase
       .from('contracts')
@@ -46,7 +42,7 @@ export async function getContractById(id: string): Promise<ApiResponse<Contract>
       .single()
       .then(({ data, error }) => {
         if (error) throw error;
-        return data as unknown as Contract;
+        return data as ContractWithVendor;
       })
   );
 }
@@ -60,26 +56,24 @@ export async function createContract(contract: ContractInsert): Promise<ApiRespo
     // Explicitly construct the object for insertion
     const insertData = {
       title: contract.title,
-      vendor_id: contract.vendor_id, // Pass the UUID string directly
+      vendor_id: contract.vendor_id,
       description: contract.description,
       start_date: contract.start_date,
       end_date: contract.end_date,
       value: contract.value,
       status: contract.status,
-      created_by: userId // Add the user ID
+      created_by: userId
     };
-
-    console.log("[createContract] Explicit insertData:", insertData);
 
     const { data, error } = await supabase
       .from('contracts')
-      .insert(insertData) // Use the explicitly constructed object
+      .insert(insertData)
       .select()
       .single();
 
     if (error) {
       console.error("[createContract] Supabase insert error details:", error);
-      throw error; // Re-throw to be caught by handleApiError
+      throw error;
     }
     return data as Contract;
   });

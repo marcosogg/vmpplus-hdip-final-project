@@ -28,3 +28,7 @@ dist-ssr
 
 # md files
 *.md
+
+#MDC FILES
+*.mdc
+

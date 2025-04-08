@@ -55,13 +55,16 @@ export function DocumentList({
   }, [entityType, entityId]);
 
   const handleDownload = async (document: Document) => {
+    setError(null);
     try {
-      const { data: url, error } = await getDocumentUrl(document);
+      const { data: url, error: downloadError } = await getDocumentUrl(document);
       
-      if (error) {
+      if (downloadError) {
+        const errorMessage = `Download failed: ${downloadError.message}`;
+        setError(errorMessage);
         toast({
           title: 'Download failed',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
         return;
@@ -73,9 +76,11 @@ export function DocumentList({
       }
     } catch (err) {
       console.error('Error downloading document:', err);
+      const errorMessage = 'An unexpected error occurred during download';
+      setError(errorMessage);
       toast({
         title: 'Download failed',
-        description: 'An unexpected error occurred',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -84,13 +89,17 @@ export function DocumentList({
   const handleDelete = async () => {
     if (!documentToDelete) return;
     
+    setError(null);
+    
     try {
-      const { error } = await deleteDocument(documentToDelete.id);
+      const { error: deleteError } = await deleteDocument(documentToDelete.id);
       
-      if (error) {
+      if (deleteError) {
+        const errorMessage = `Delete failed: ${deleteError.message}`;
+        setError(errorMessage);
         toast({
           title: 'Delete failed',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
         return;
@@ -110,9 +119,11 @@ export function DocumentList({
       }
     } catch (err) {
       console.error('Error deleting document:', err);
+      const errorMessage = 'An unexpected error occurred during deletion';
+      setError(errorMessage);
       toast({
         title: 'Delete failed',
-        description: 'An unexpected error occurred',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

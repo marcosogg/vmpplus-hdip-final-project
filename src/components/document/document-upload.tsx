@@ -15,6 +15,7 @@ export function DocumentUpload({ entityType, entityId, onSuccess }: DocumentUplo
   const [file, setFile] = useState<File | null>(null);
   const [docName, setDocName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,28 +34,33 @@ export function DocumentUpload({ entityType, entityId, onSuccess }: DocumentUplo
     e.preventDefault();
     
     if (!file) {
+      const errorMessage = 'Please select a file to upload';
+      setError(errorMessage);
       toast({
         title: 'No file selected',
-        description: 'Please select a file to upload',
+        description: errorMessage,
         variant: 'destructive',
       });
       return;
     }
 
     setIsUploading(true);
+    setError(null);
     
     try {
-      const { data, error } = await uploadDocument(
+      const { data, error: uploadError } = await uploadDocument(
         file,
         entityType,
         entityId,
         docName || file.name
       );
       
-      if (error) {
+      if (uploadError) {
+        const errorMessage = `Upload failed: ${uploadError.message}`;
+        setError(errorMessage);
         toast({
           title: 'Upload failed',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
         return;
@@ -75,9 +81,11 @@ export function DocumentUpload({ entityType, entityId, onSuccess }: DocumentUplo
       }
     } catch (err) {
       console.error('Error uploading document:', err);
+      const errorMessage = 'An unexpected error occurred while uploading the document';
+      setError(errorMessage);
       toast({
         title: 'Upload failed',
-        description: 'An unexpected error occurred while uploading the document',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -87,6 +95,12 @@ export function DocumentUpload({ entityType, entityId, onSuccess }: DocumentUplo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded" role="alert">
+          {error}
+        </div>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="docName">Document Name</Label>
         <Input

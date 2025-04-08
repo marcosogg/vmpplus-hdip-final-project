@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Backend Implementation Rules for VMP PLUS with Supabase
 
 This document defines the exact implementation requirements for the Supabase backend of the VMP PLUS project. Following these rules will ensure a reliable, secure, and properly structured backend system.

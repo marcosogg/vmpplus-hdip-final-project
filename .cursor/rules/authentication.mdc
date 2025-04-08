@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Supabase Authentication Implementation Rules for VMP PLUS
 
 This document provides explicit instructions for implementing authentication with Supabase in the VMP PLUS project. Follow these rules precisely to ensure a working authentication system.

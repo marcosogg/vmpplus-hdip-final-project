@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # VMP PLUS Project Instructions (LLM Edition)
 
 **Objective:** Follow these guidelines precisely to build the Vendor Management Programme (VMP PLUS). This document provides the foundational rules and structure applicable to all development tasks for this application.

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { Search, Bell, ChevronDown } from 'lucide-react'; // Added ChevronDown
 import { 
   DropdownMenu,
@@ -59,7 +60,11 @@ const Header: React.FC = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <NavLink to="/app/profile" className="w-full justify-start cursor-pointer">
+                    Profile
+                  </NavLink>
+                </DropdownMenuItem>
                 <DropdownMenuItem>Account Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <LogoutButton />

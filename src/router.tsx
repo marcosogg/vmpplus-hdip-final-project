@@ -21,6 +21,8 @@ import { ContractCreatePage } from './pages/contract/contract-create';
 import { ContractEditPage } from './pages/contract/contract-edit';
 import { DocumentListPage } from './pages/document/document-list';
 import { DocumentDetailPage } from './pages/document/document-detail';
+import SettingsPage from './pages/settings/settings-page';
+import ProfilePage from './pages/profile/profile-page';
 
 // Not found page
 const NotFoundPage = () => (
@@ -74,6 +76,12 @@ export function AppRouter() {
         {/* Document routes */}
         <Route path="documents" element={<DocumentListPage />} />
         <Route path="documents/:id" element={<DocumentDetailPage />} />
+
+        {/* Settings route */}
+        <Route path="settings" element={<SettingsPage />} />
+
+        {/* Profile route */}
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
       
       {/* 404 route */}

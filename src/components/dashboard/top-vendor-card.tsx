@@ -1,67 +1,96 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TopVendorCardProps {
-  vendor: {
-    id: string;
-    name: string;
-    category: string;
-    status: "active" | "pending";
-    rating: number;
-    contracts: number;
-    avatar: string;
-  };
+  logoUrl?: string;
+  name?: string;
+  category?: string;
+  rating?: number;
+  contractCount?: number;
+  status?: 'Active' | 'Pending';
 }
 
-export function TopVendorCard({ vendor }: TopVendorCardProps) {
-  return (
-    <Card className="overflow-hidden">
-      {/* Add subtle blue gradient top border like landing page cards */}
-      <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-blue-400"></div>
-      
-      <CardContent className="pt-6">
-        <div className="flex flex-col items-center gap-4">
-          {/* Avatar */}
-          <Avatar className="h-16 w-16">
-            <AvatarFallback className="text-lg font-medium">
-              {vendor.avatar}
-            </AvatarFallback>
-          </Avatar>
+// Helper to get initials for AvatarFallback
+const getInitials = (name: string) => {
+  // Add check for valid name string
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return '?'; // Return a default fallback if name is invalid
+  }
+  const names = name.split(' ');
+  if (names.length === 1) return names[0].charAt(0).toUpperCase();
+  return names[0].charAt(0).toUpperCase() + names[names.length - 1].charAt(0).toUpperCase();
+};
 
-          {/* Vendor Info */}
-          <div className="text-center">
-            <h3 className="text-lg font-semibold">{vendor.name}</h3>
-            <p className="text-sm text-muted-foreground">{vendor.category}</p>
+export function TopVendorCard({
+  logoUrl = '',
+  name = 'Unknown Vendor',
+  category = 'Uncategorized',
+  rating = 0,
+  contractCount = 0,
+  status = 'Pending',
+}: TopVendorCardProps) {
+  // Safe rating value for rendering
+  const safeRating = typeof rating === 'number' ? rating : 0;
+  
+  return (
+    <Card>
+      <CardContent className="p-4 flex flex-col">
+          {/* Top Right Badge */}
+          <div className="flex justify-end mb-2">
+              <Badge
+                  variant="outline"
+                  className={cn(
+                      "text-xs px-2 py-0.5 rounded-full",
+                      status === 'Active'
+                          ? "border-green-200 text-green-800 bg-green-100"
+                          : "border-yellow-200 text-yellow-800 bg-yellow-100"
+                  )}
+              >
+                  {status}
+              </Badge>
           </div>
 
-          {/* Status Badge */}
-          <Badge variant={vendor.status === "active" ? "default" : "secondary"}>
-            {vendor.status}
-          </Badge>
+          {/* Logo */}
+           <Avatar className="h-10 w-10 mb-2">
+              <AvatarImage src={logoUrl} alt={`${name} logo`} />
+              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+           </Avatar>
+
+          {/* Text Info */}
+          <p className="font-semibold text-base text-card-foreground mt-1">{name}</p>
+          <p className="text-sm text-muted-foreground mb-2">{category}</p>
 
           {/* Rating */}
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-            <span className="font-medium">{vendor.rating}</span>
+          <div className="flex items-center gap-1 mb-3">
+              {[...Array(5)].map((_, i) => (
+                  <Star
+                      key={i}
+                      className={cn(
+                          "h-4 w-4",
+                          i < Math.round(safeRating)
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-300"
+                      )}
+                  />
+              ))}
+              <span className="text-sm font-medium text-card-foreground ml-1">{safeRating.toFixed(1)}</span>
           </div>
 
-          {/* Contract Count */}
-          <div className="text-sm text-muted-foreground">
-            {vendor.contracts} active contracts
+          {/* Bottom Section */}
+          <div className="flex justify-between items-center mt-auto pt-3 border-t">
+              <span className="text-sm text-muted-foreground">{contractCount} contract{contractCount !== 1 ? 's' : ''}</span>
+              <Button variant="link" className="p-0 h-auto text-sm font-medium text-primary">
+                  Details
+              </Button>
           </div>
-
-          {/* Details Button */}
-          <Button variant="outline" size="sm" asChild className="w-full">
-            <Link to={`/app/vendors/${vendor.id}`}>
-              View Details
-            </Link>
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
-} 
+}
+
+export default TopVendorCard; 

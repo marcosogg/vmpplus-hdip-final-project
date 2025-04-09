@@ -1,69 +1,58 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Activity } from 'lucide-react';
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { FilePenLine, CheckCircle, AlertTriangle, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Placeholder data - replace with dynamic data later
-const recentActivities = [
-  { id: 1, description: "Vendor 'Tech Solutions Inc.' added", timestamp: "2 hours ago" },
-  { id: 2, description: "Contract 'Annual Maintenance' updated for Vendor 'ABC Corp'", timestamp: "1 day ago" },
-  { id: 3, description: "Document 'NDA_signed.pdf' uploaded for Contract 'Project Phoenix'", timestamp: "2 days ago" },
-  { id: 4, description: "Vendor 'Global Supplies' status changed to 'inactive'", timestamp: "3 days ago" },
-  { id: 5, description: "User 'john.doe@example.com' logged in", timestamp: "4 days ago" },
+interface Activity {
+  id: number;
+  icon: React.ElementType;
+  iconBg: string; // bg-blue-100 etc.
+  iconColor: string; // text-blue-600 etc.
+  descriptionParts: (string | { text: string; bold: boolean })[]; // Use bold flag
+  timestamp: string;
+}
+
+// Mock Data with parsed description using bold flag
+const recentActivities: Activity[] = [
+  { id: 1, icon: FilePenLine, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', descriptionParts: ['New contract signed with ', { text: 'Amazon Web Services', bold: true }, '.'], timestamp: '2 hours ago' },
+  { id: 2, icon: CheckCircle, iconBg: 'bg-green-100', iconColor: 'text-green-600', descriptionParts: ['Vendor ', { text: 'IBM Solutions', bold: true }, ' submitted documents for review.'], timestamp: '5 hours ago' },
+  { id: 3, icon: AlertTriangle, iconBg: 'bg-yellow-100', iconColor: 'text-yellow-600', descriptionParts: ['Contract with ', { text: 'FedEx Logistics', bold: true }, ' expires in 30 days.'], timestamp: 'Yesterday' },
+  { id: 4, icon: Star, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', descriptionParts: [{ text: 'Adobe Systems', bold: true }, ' received a 5-star rating.'], timestamp: '2 days ago' },
 ];
 
 export function RecentActivity() {
   return (
-    <Card className="overflow-hidden">
-      {/* Add subtle blue gradient top border like landing page cards */}
-      <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-blue-400"></div>
-      
-      <CardHeader className="pb-4">
-        <div className="flex items-center space-x-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-            <Activity className="h-5 w-5" />
-          </div>
-          <div>
-            <CardTitle className="text-gray-800">Recent Activity</CardTitle>
-            <CardDescription className="text-gray-500">
-              A log of recent actions within the system.
-            </CardDescription>
-          </div>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Recent Activities</CardTitle>
       </CardHeader>
-      
-      <CardContent>
-        <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead className="text-xs font-medium text-slate-500">Description</TableHead>
-              <TableHead className="text-right text-xs font-medium text-slate-500">Time</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentActivities.map((activity) => (
-              <TableRow key={activity.id} className="hover:bg-slate-50">
-                <TableCell className="py-3 font-medium text-gray-700">{activity.description}</TableCell>
-                <TableCell className="py-3 text-right text-sm text-gray-500">
-                  {activity.timestamp}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent className="p-0">
+        <div className="space-y-0">
+          {recentActivities.map((activity) => (
+            <div key={activity.id} className="flex items-start gap-3 p-4 border-b last:border-b-0">
+              {/* Icon container */}
+              <div className={cn("p-2 rounded-full flex items-center justify-center", activity.iconBg)}>
+                <activity.icon className={cn("h-4 w-4", activity.iconColor)} />
+              </div>
+              {/* Text Content */}
+              <div>
+                <p className="text-sm text-card-foreground">
+                  {activity.descriptionParts.map((part, i) =>
+                    typeof part === 'string' ? (
+                      <React.Fragment key={i}>{part}</React.Fragment>
+                    ) : (
+                      <span key={i} className={cn(part.bold ? 'font-medium' : '')}>{part.text}</span>
+                    )
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{activity.timestamp}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
-} 
+}
+
+export default RecentActivity; 

@@ -1,6 +1,6 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { SummaryCard } from '@/components/dashboard/summary-card';
-import { ChartPlaceholder } from '@/components/dashboard/chart-placeholder';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { RecentVendorsList } from '@/components/dashboard/recent-vendors-list';
 import { TopVendorCard } from '@/components/dashboard/top-vendor-card';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
@@ -65,39 +65,39 @@ export function DashboardPage() {
   const topVendors = [
     {
       id: "1",
-      name: "Tech Solutions Inc.",
-      category: "IT Services",
-      status: "active" as const,
+      name: "Salesforce",
+      category: "CRM Solutions",
+      status: "Active" as const,
       rating: 4.8,
-      contracts: 3,
-      avatar: "TS"
+      contractCount: 2,
+      logoUrl: "https://logo.clearbit.com/salesforce.com"
     },
     {
       id: "2",
-      name: "Global Logistics",
-      category: "Transportation",
-      status: "active" as const,
-      rating: 4.7,
-      contracts: 5,
-      avatar: "GL"
+      name: "Microsoft",
+      category: "Software & Cloud",
+      status: "Active" as const,
+      rating: 4.0,
+      contractCount: 4,
+      logoUrl: "https://logo.clearbit.com/microsoft.com"
     },
     {
       id: "3",
-      name: "Quality Supplies",
-      category: "Office Supplies",
-      status: "active" as const,
-      rating: 4.6,
-      contracts: 2,
-      avatar: "QS"
+      name: "Adobe Systems",
+      category: "Creative Software",
+      status: "Pending" as const,
+      rating: 5.0,
+      contractCount: 1,
+      logoUrl: "https://logo.clearbit.com/adobe.com"
     },
     {
       id: "4",
-      name: "Secure Systems",
-      category: "Cybersecurity",
-      status: "pending" as const,
-      rating: 4.5,
-      contracts: 1,
-      avatar: "SS"
+      name: "Oracle",
+      category: "Database Solutions",
+      status: "Active" as const,
+      rating: 4.2,
+      contractCount: 3,
+      logoUrl: "https://logo.clearbit.com/oracle.com"
     }
   ];
 
@@ -122,9 +122,9 @@ export function DashboardPage() {
         description="Welcome to VMP Plus. Overview of your vendor management activities."
       />
 
-      <div className="flex flex-col gap-6">
+      <div className="p-6">
         {/* Summary Metrics Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {isLoading ? (
             <>
               <Skeleton className="h-[120px] w-full" />
@@ -136,65 +136,89 @@ export function DashboardPage() {
             <>
               <SummaryCard 
                 title="Total Vendors" 
-                value={counts.vendors.toString()} 
+                value={counts.vendors.toString()}
+                change="+12% from last month"
+                changeColor="green"
                 icon={Users}
-                trend={{
-                  value: "15% from last month",
-                  isPositive: true
-                }}
+                iconBgColor="bg-blue-100"
+                iconColor="text-blue-600"
               />
               <SummaryCard 
                 title="Active Contracts" 
-                value={counts.contracts.toString()} 
+                value={counts.contracts.toString()}
+                change="+5% from last month"
+                changeColor="green"
                 icon={FileText}
-                trend={{
-                  value: "3 new this month",
-                  isPositive: true
-                }}
+                iconBgColor="bg-green-100"
+                iconColor="text-green-600"
               />
               <SummaryCard 
-                title="Expiring Soon" 
-                value={counts.expiring.toString()} 
+                title="Pending Approvals" 
+                value={counts.expiring.toString()}
+                change="+3 urgent"
+                changeColor="red"
                 icon={AlertTriangle}
-                trend={{
-                  value: "2 contracts expiring",
-                  isPositive: false
-                }}
+                iconBgColor="bg-yellow-100"
+                iconColor="text-yellow-600"
               />
               <SummaryCard 
-                title="Total Documents" 
-                value={counts.documents.toString()} 
+                title="Avg. Rating" 
+                value="4.2"
+                change="+0.3 from last quarter"
+                changeColor="green"
                 icon={Star}
-                trend={{
-                  value: "4.8 average rating",
-                  isPositive: true
-                }}
+                iconBgColor="bg-purple-100"
+                iconColor="text-purple-600"
               />
             </>
           )}
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartPlaceholder 
-            title="Vendor Growth" 
-            description="Trend over the last 6 months"
-          />
-          <ChartPlaceholder 
-            title="Vendor Categories" 
-            description="Distribution by industry"
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Vendor Growth</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Placeholder for the actual chart component */}
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/30 rounded border border-dashed">
+                Vendor Growth Chart Area
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Vendor Categories</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Placeholder for the actual chart component */}
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/30 rounded border border-dashed">
+                Vendor Categories Chart Area
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Recent Vendors Section */}
-        <RecentVendorsList />
+        <div className="mb-6">
+          <RecentVendorsList />
+        </div>
 
         {/* Top Rated Vendors Section */}
         <div>
-          <h3 className="text-xl font-semibold mb-4">Top Rated Vendors</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h3 className="text-lg font-semibold mb-4">Top Rated Vendors</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {topVendors.map((vendor) => (
-              <TopVendorCard key={vendor.id} vendor={vendor} />
+              <TopVendorCard
+                key={vendor.id}
+                logoUrl={vendor.logoUrl}
+                name={vendor.name}
+                category={vendor.category}
+                rating={vendor.rating}
+                contractCount={vendor.contractCount}
+                status={vendor.status}
+              />
             ))}
           </div>
         </div>

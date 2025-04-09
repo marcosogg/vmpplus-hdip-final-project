@@ -38,35 +38,30 @@ export function TopVendorCard({
   const safeRating = typeof rating === 'number' ? rating : 0;
   
   return (
-    <Card>
-      <CardContent className="p-4 flex flex-col">
-          {/* Top Right Badge */}
-          <div className="flex justify-end mb-2">
-              <Badge
-                  variant="outline"
-                  className={cn(
-                      "text-xs px-2 py-0.5 rounded-full",
-                      status === 'Active'
-                          ? "border-green-200 text-green-800 bg-green-100"
-                          : "border-yellow-200 text-yellow-800 bg-yellow-100"
-                  )}
-              >
-                  {status}
-              </Badge>
-          </div>
-
-          {/* Logo */}
-           <Avatar className="h-10 w-10 mb-2">
+    <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <CardContent className="p-4 flex flex-col h-full">
+        <div className="flex justify-between items-start mb-3">
+          <Avatar className="h-10 w-10">
               <AvatarImage src={logoUrl} alt={`${name} logo`} />
               <AvatarFallback>{getInitials(name)}</AvatarFallback>
            </Avatar>
+           <Badge
+              variant="outline"
+              className={cn(
+                  "text-xs px-2.5 py-0.5 rounded-full font-medium border-0",
+                  status === 'Active'
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+              )}
+            >
+              {status}
+            </Badge>
+        </div>
 
-          {/* Text Info */}
-          <p className="font-semibold text-base text-card-foreground mt-1">{name}</p>
-          <p className="text-sm text-muted-foreground mb-2">{category}</p>
+          <p className="font-semibold text-base text-gray-900 mb-0.5">{name}</p>
+          <p className="text-sm text-gray-500 mb-3">{category}</p>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 mb-3">
+          <div className="flex items-center gap-1 mb-4">
               {[...Array(5)].map((_, i) => (
                   <Star
                       key={i}
@@ -78,13 +73,12 @@ export function TopVendorCard({
                       )}
                   />
               ))}
-              <span className="text-sm font-medium text-card-foreground ml-1">{safeRating.toFixed(1)}</span>
+              <span className="text-sm font-medium text-gray-700 ml-1">{safeRating.toFixed(1)}</span>
           </div>
 
-          {/* Bottom Section */}
-          <div className="flex justify-between items-center mt-auto pt-3 border-t">
-              <span className="text-sm text-muted-foreground">{contractCount} contract{contractCount !== 1 ? 's' : ''}</span>
-              <Button variant="link" className="p-0 h-auto text-sm font-medium text-primary">
+          <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
+              <span className="text-sm text-gray-500">{contractCount} contract{contractCount !== 1 ? 's' : ''}</span>
+              <Button variant="outline" size="sm" className="bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200 px-3 py-1 text-xs font-medium">
                   Details
               </Button>
           </div>

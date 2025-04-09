@@ -49,7 +49,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: "#2C3E50",
+        sidebar: "#1A2B4C",
         contentBackground: "#F4F6F8",
       },
       borderRadius: {

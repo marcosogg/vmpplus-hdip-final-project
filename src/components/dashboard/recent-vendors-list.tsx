@@ -22,9 +22,9 @@ const getInitials = (name: string) => {
 
 export function RecentVendorsList() {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-semibold">Recent Vendors</CardTitle>
+    <Card className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
+        <CardTitle className="text-lg font-medium text-gray-700">Recent Vendors</CardTitle>
         <Button variant="link" className="p-0 h-auto text-sm font-medium text-primary">
           View All
         </Button>
@@ -36,48 +36,35 @@ export function RecentVendorsList() {
               key={vendor.id}
               className={cn(
                 "flex items-center justify-between gap-4 p-4",
-                index < recentVendors.length - 1 ? "border-b" : ""
+                index < recentVendors.length - 1 ? "border-b border-gray-100" : ""
               )}
             >
-              {/* Left: Logo, Name, Category */}
-              <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex items-center gap-3 flex-shrink-0 min-w-0">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={vendor.logoUrl} alt={`${vendor.name} logo`} />
                   <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-medium text-sm text-card-foreground">{vendor.name}</p>
-                  <p className="text-xs text-muted-foreground">{vendor.category}</p>
+                <div className="min-w-0">
+                  <p className="font-medium text-sm text-gray-900 truncate">{vendor.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{vendor.category}</p>
                 </div>
               </div>
 
-              {/* Middle Section (Status, Contracts, Rating) */}
-              <div className="flex items-center gap-6 sm:gap-8 md:gap-12 flex-grow justify-end mr-4">
-                {/* Status Badge */}
+              <div className="flex-shrink-0 mx-4">
                 <Badge
-                  variant={vendor.status === 'Active' ? 'outline' : 'outline'}
+                  variant="outline"
                   className={cn(
-                    "text-xs px-2 py-0.5",
+                    "text-xs px-2.5 py-0.5 rounded-full font-medium border-0",
                     vendor.status === 'Active'
-                      ? "border-green-300 text-green-700 bg-green-50"
-                      : "border-yellow-300 text-yellow-700 bg-yellow-50"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
                   )}
                 >
                   {vendor.status}
                 </Badge>
-
-                {/* Contracts */}
-                <p className="text-sm text-muted-foreground min-w-[70px] text-right">{vendor.contracts}</p>
-
-                {/* Rating */}
-                <div className="flex items-center gap-1 min-w-[50px]">
-                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-sm font-medium text-card-foreground">{vendor.rating.toFixed(1)}</span>
-                </div>
               </div>
 
-              {/* Right: Button */}
-              <Button variant="outline" size="sm" className="flex-shrink-0">
+              <Button variant="outline" size="sm" className="flex-shrink-0 bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200 px-3 py-1 text-xs font-medium">
                 View Details
               </Button>
             </div>

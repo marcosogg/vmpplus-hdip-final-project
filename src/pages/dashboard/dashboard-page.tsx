@@ -11,6 +11,7 @@ import { getContractCount, getExpiringContractCount } from '@/lib/api/contracts'
 import { getDocumentCount } from '@/lib/api/documents';
 import { ApiResponse } from '@/types/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -116,115 +117,114 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-8">
+    <div className="flex flex-col pb-8">
       <PageHeader
         title="Vendor Management Dashboard"
-        description="Welcome to VMP Plus. Overview of your vendor management activities."
       />
 
-      <div className="p-6">
-        {/* Summary Metrics Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-[120px] w-full" />
-              <Skeleton className="h-[120px] w-full" />
-              <Skeleton className="h-[120px] w-full" />
-              <Skeleton className="h-[120px] w-full" />
-            </>
-          ) : (
-            <>
-              <SummaryCard 
-                title="Total Vendors" 
-                value={counts.vendors.toString()}
-                change="+12% from last month"
-                changeColor="green"
-                icon={Users}
-                iconBgColor="bg-blue-100"
-                iconColor="text-blue-600"
-              />
-              <SummaryCard 
-                title="Active Contracts" 
-                value={counts.contracts.toString()}
-                change="+5% from last month"
-                changeColor="green"
-                icon={FileText}
-                iconBgColor="bg-green-100"
-                iconColor="text-green-600"
-              />
-              <SummaryCard 
-                title="Pending Approvals" 
-                value={counts.expiring.toString()}
-                change="+3 urgent"
-                changeColor="red"
-                icon={AlertTriangle}
-                iconBgColor="bg-yellow-100"
-                iconColor="text-yellow-600"
-              />
-              <SummaryCard 
-                title="Avg. Rating" 
-                value="4.2"
-                change="+0.3 from last quarter"
-                changeColor="green"
-                icon={Star}
-                iconBgColor="bg-purple-100"
-                iconColor="text-purple-600"
-              />
-            </>
-          )}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 px-6">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+            <Skeleton className="h-[120px] w-full" />
+          </>
+        ) : (
+          <>
+            <SummaryCard 
+              title="Total Vendors" 
+              value={counts.vendors.toString()}
+              change="+12% from last month"
+              changeColor="green"
+              icon={Users}
+              iconBgColor="bg-blue-100"
+              iconColor="text-blue-600"
+            />
+            <SummaryCard 
+              title="Active Contracts" 
+              value={counts.contracts.toString()}
+              change="+5% from last month"
+              changeColor="green"
+              icon={FileText}
+              iconBgColor="bg-green-100"
+              iconColor="text-green-600"
+            />
+            <SummaryCard 
+              title="Pending Approvals" 
+              value={counts.expiring.toString()}
+              change="+3 urgent"
+              changeColor="red"
+              icon={AlertTriangle}
+              iconBgColor="bg-yellow-100"
+              iconColor="text-yellow-600"
+              isUrgent={true}
+            />
+            <SummaryCard 
+              title="Avg. Rating" 
+              value="4.2"
+              change="+0.3 from last quarter"
+              changeColor="green"
+              icon={Star}
+              iconBgColor="bg-purple-100"
+              iconColor="text-purple-600"
+            />
+          </>
+        )}
+      </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Vendor Growth</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Placeholder for the actual chart component */}
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/30 rounded border border-dashed">
-                Vendor Growth Chart Area
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Vendor Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Placeholder for the actual chart component */}
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/30 rounded border border-dashed">
-                Vendor Categories Chart Area
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 px-6">
+        <Card className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <CardHeader className="p-4 pb-0">
+            <CardTitle className="text-lg font-medium text-gray-700">Vendor Growth</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-gray-50 rounded border border-dashed">
+              Vendor Growth Chart Area
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <CardHeader className="p-4 pb-0">
+            <CardTitle className="text-lg font-medium text-gray-700">Vendor Categories</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-gray-50 rounded border border-dashed">
+              Vendor Categories Chart Area
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Recent Vendors Section */}
-        <div className="mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6 px-6">
+        <div className="xl:col-span-2">
           <RecentVendorsList />
         </div>
-
-        {/* Top Rated Vendors Section */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Top Rated Vendors</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {topVendors.map((vendor) => (
-              <TopVendorCard
-                key={vendor.id}
-                logoUrl={vendor.logoUrl}
-                name={vendor.name}
-                category={vendor.category}
-                rating={vendor.rating}
-                contractCount={vendor.contractCount}
-                status={vendor.status}
-              />
-            ))}
-          </div>
+        <div className="xl:col-span-1">
+          <RecentActivity />
         </div>
-
-        {/* Recent Activity Section */}
-        <RecentActivity />
+      </div>
+      
+      <div className="mb-6 px-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium text-gray-700">Top Rated Vendors</h3>
+          <Button variant="link" className="p-0 h-auto text-sm font-medium text-primary">
+            View All
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {topVendors.map((vendor) => (
+            <TopVendorCard
+              key={vendor.id}
+              logoUrl={vendor.logoUrl}
+              name={vendor.name}
+              category={vendor.category}
+              rating={vendor.rating}
+              contractCount={vendor.contractCount}
+              status={vendor.status}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

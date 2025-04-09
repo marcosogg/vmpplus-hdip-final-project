@@ -33,22 +33,24 @@ const navItems = [
 
 export function SidebarNav() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-1">
       {navItems.map((item) => (
         <NavLink
           key={item.href}
           to={item.href}
           className={({ isActive }) =>
             cn(
-              'flex items-center py-2 px-3 rounded-md text-sm transition-colors',
-              'hover:bg-white/10',
+              'flex items-center py-2 px-3 rounded-md text-sm font-medium transition-colors',
+              'hover:bg-slate-700 hover:text-white',
               isActive 
-                ? 'bg-white/10 text-white font-medium'
-                : 'text-white/70 hover:text-white'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-300'
             )
           }
         >
-          <item.icon className="mr-3 h-5 w-5" />
+          <item.icon className={cn(
+            "mr-3 h-5 w-5",
+          )} />
           <span>{item.title}</span>
         </NavLink>
       ))}

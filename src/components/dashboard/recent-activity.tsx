@@ -22,30 +22,34 @@ const recentActivities: Activity[] = [
 
 export function RecentActivity() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Recent Activities</CardTitle>
+    <Card className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <CardHeader className="p-4 pb-2">
+        <CardTitle className="text-lg font-medium text-gray-700">Recent Activities</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-0">
-          {recentActivities.map((activity) => (
-            <div key={activity.id} className="flex items-start gap-3 p-4 border-b last:border-b-0">
-              {/* Icon container */}
+          {recentActivities.map((activity, index) => (
+            <div 
+              key={activity.id} 
+              className={cn(
+                "flex items-start gap-3 p-4",
+                index < recentActivities.length - 1 ? "border-b border-gray-100" : ""
+              )}
+            >
               <div className={cn("p-2 rounded-full flex items-center justify-center", activity.iconBg)}>
                 <activity.icon className={cn("h-4 w-4", activity.iconColor)} />
               </div>
-              {/* Text Content */}
-              <div>
-                <p className="text-sm text-card-foreground">
+              <div className="min-w-0">
+                <p className="text-sm text-gray-700">
                   {activity.descriptionParts.map((part, i) =>
                     typeof part === 'string' ? (
                       <React.Fragment key={i}>{part}</React.Fragment>
                     ) : (
-                      <span key={i} className={cn(part.bold ? 'font-medium' : '')}>{part.text}</span>
+                      <span key={i} className={cn(part.bold ? 'font-medium text-gray-900' : '')}>{part.text}</span>
                     )
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{activity.timestamp}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{activity.timestamp}</p>
               </div>
             </div>
           ))}

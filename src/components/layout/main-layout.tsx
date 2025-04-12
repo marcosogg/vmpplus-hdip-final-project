@@ -25,24 +25,18 @@ export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
   
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        
-        {/* Nav items */}
-        <nav className="flex-1 p-4">
-          <SidebarNav />
-        </nav>
-        {/* Footer area if needed */}
-        
+    <div className="h-screen flex">
+      {/* Sidebar - removing fixed width since it's now controlled in SidebarNav */}
+      <aside className="bg-navy-900 text-white flex flex-col">
+        <SidebarNav />
       </aside>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col bg-gray-50">
+      <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
         <Header />
 
         {/* Page content */}
-        <main className="flex-1 p-6">
+        <main className="p-6">
           {children}
         </main>
       </div>

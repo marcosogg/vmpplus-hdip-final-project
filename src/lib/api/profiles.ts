@@ -45,6 +45,21 @@ export async function updateProfile(updates: ProfileUpdate): Promise<ApiResponse
   });
 }
 
+// Update the last login timestamp for a user
+export async function updateLastLogin(userId: string): Promise<ApiResponse<Profile>> {
+  return handleApiError(async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('id', userId)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data as Profile;
+  });
+}
+
 // Create a profile for a new user (called after signup)
 export async function createProfile(userId: string, email: string): Promise<ApiResponse<Profile>> {
   return handleApiError(

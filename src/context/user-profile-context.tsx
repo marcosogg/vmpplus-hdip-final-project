@@ -128,4 +128,13 @@ export function UserProfileProvider({ children }: UserProfileProviderProps) {
       {children}
     </UserProfileContext.Provider>
   );
+}
+
+// Custom hook to use the user profile context
+export function useUserProfile() {
+  const context = useContext(UserProfileContext);
+  if (context === undefined) {
+    throw new Error('useUserProfile must be used within a UserProfileProvider');
+  }
+  return context;
 } 

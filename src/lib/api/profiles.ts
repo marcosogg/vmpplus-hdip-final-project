@@ -53,6 +53,7 @@ export async function createProfile(userId: string, email: string): Promise<ApiR
       .insert({
         id: userId,
         email,
+        role_id: '60b1896f-ba73-45e1-878d-e49badca6f78' // Buyer role ID
       })
       .select()
       .single()

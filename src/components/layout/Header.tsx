@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Search, Bell, ChevronDown } from 'lucide-react'; // Added ChevronDown
+import { Search, Bell, ChevronDown } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +10,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from '@/components/auth/logout-button';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const Header: React.FC = () => {
+  const { profile, userRole, isProfileLoading } = useUserProfile();
+  
+  // Get initials for avatar fallback
+  const getInitials = (name: string | null) => {
+    if (!name) return 'U';
+    return name.split(' ')
+      .map(part => part.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  };
+  
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,10 +65,23 @@ const Header: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2 pl-2 pr-0">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" />
-                    <AvatarFallback>SJ</AvatarFallback>
+                    <AvatarFallback>{!isProfileLoading && profile ? getInitials(profile.full_name) : 'U'}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline text-sm font-medium text-gray-700">Sarah Johnson</span>
+                  <div className="hidden md:flex flex-col items-start">
+                    <span className="text-sm font-medium text-gray-700">
+                      {!isProfileLoading && profile ? profile.full_name || profile.email : 'Loading...'}
+                    </span>
+                    {!isProfileLoading && userRole && (
+                      <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                        {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+                      </Badge>
+                    )}
+                    {isProfileLoading && (
+                      <Badge variant="outline" className="text-xs px-1 py-0 h-4 animate-pulse">
+                        Loading...
+                      </Badge>
+                    )}
+                  </div>
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
@@ -65,7 +91,13 @@ const Header: React.FC = () => {
                     Profile
                   </NavLink>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Account Settings</DropdownMenuItem>
+                {userRole === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/app/settings" className="w-full justify-start cursor-pointer">
+                      Settings
+                    </NavLink>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <LogoutButton />
               </DropdownMenuContent>

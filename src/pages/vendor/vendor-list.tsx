@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { supabase } from '@/lib/supabase';
 
 export function VendorListPage() {
@@ -30,6 +31,10 @@ export function VendorListPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
+  const { userRole } = useUserProfile();
+  
+  // Check if user is admin
+  const isAdmin = userRole === 'admin';
   
   // Check environment variables in development
   useEffect(() => {
@@ -242,12 +247,14 @@ export function VendorListPage() {
                         <DropdownMenuItem onClick={() => navigateToEdit(vendor.id)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-red-600"
-                          onClick={() => handleDeleteVendor(vendor.id)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
+                        {isAdmin && (
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteVendor(vendor.id)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

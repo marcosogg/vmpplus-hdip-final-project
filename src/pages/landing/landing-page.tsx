@@ -21,7 +21,7 @@ export function LandingPage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <div className="text-2xl font-bold text-blue-600">VMP<span className="text-slate-800">Plus</span></div>
+            <img src="/public/images/vmp-logo-master.png" alt="VMP Plus Logo" className="h-10" />
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-slate-600 hover:text-blue-600 transition-colors">Features</a>
@@ -464,7 +464,7 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="text-2xl font-bold text-white mb-4">VMP<span className="text-blue-400">Plus</span></div>
+              <img src="/public/images/vmp-logo-whitebg.png" alt="VMP Plus Logo" className="h-10 mb-4" />
               <p className="text-slate-400">
                 The complete vendor management platform for modern businesses.
               </p>

@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export function ContractListPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -29,6 +30,10 @@ export function ContractListPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
+  const { userRole } = useUserProfile();
+  
+  // Check if user is admin
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -219,12 +224,14 @@ export function ContractListPage() {
                         <DropdownMenuItem onClick={() => navigateToEdit(contract.id)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-red-600"
-                          onClick={() => handleDeleteContract(contract.id)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
+                        {isAdmin && (
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => handleDeleteContract(contract.id)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

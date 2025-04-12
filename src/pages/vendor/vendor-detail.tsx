@@ -18,11 +18,16 @@ import { format } from 'date-fns';
 import { EditIcon, Trash2Icon, FileIcon } from 'lucide-react';
 import { DocumentList } from '@/components/document/document-list';
 import { DocumentUpload } from '@/components/document/document-upload';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userRole } = useUserProfile();
+  
+  // Check if user is admin
+  const isAdmin = userRole === 'admin';
   
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -187,38 +192,40 @@ export function VendorDetailPage() {
               Edit
             </Button>
             
-            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="destructive">
-                  <Trash2Icon className="mr-2 h-4 w-4" />
-                  Delete
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Delete Vendor</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to delete {vendor.name}? This action cannot be undone.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsDeleteDialogOpen(false)}
-                    disabled={isDeleting}
-                  >
-                    Cancel
+            {isAdmin && (
+              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2Icon className="mr-2 h-4 w-4" />
+                    Delete
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete Vendor</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to delete {vendor.name}? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDeleteDialogOpen(false)}
+                      disabled={isDeleting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? 'Deleting...' : 'Delete'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         }
       />

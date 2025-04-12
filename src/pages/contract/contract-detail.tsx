@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { Edit, MoreVertical, Trash2, FileText } from 'lucide-react';
 import { DocumentList } from '@/components/document/document-list';
 import { DocumentUpload } from '@/components/document/document-upload';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export function ContractDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,10 @@ export function ContractDetailPage() {
   const [showUploadDocumentDialog, setShowUploadDocumentDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userRole } = useUserProfile();
+  
+  // Check if user is admin
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     if (id) {
@@ -206,13 +211,15 @@ export function ContractDetailPage() {
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Contract
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={handleDeleteContract}
-                className="text-red-600"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Contract
-              </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem 
+                  onClick={handleDeleteContract}
+                  className="text-red-600"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Contract
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         }

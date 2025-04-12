@@ -17,6 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -28,6 +38,8 @@ export function VendorListPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [vendorToDelete, setVendorToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
@@ -112,7 +124,7 @@ export function VendorListPage() {
       
       if (error) {
         const errorMessage = `Failed to delete vendor: ${error.message}`;
-        setError(errorMessage); // Set the error state
+        setError(errorMessage);
         toast({
           title: "Error",
           description: errorMessage,
@@ -131,14 +143,22 @@ export function VendorListPage() {
     } catch (err) {
       console.error(err);
       const errorMessage = "An unexpected error occurred while deleting the vendor";
-      setError(errorMessage); // Set the error state
+      setError(errorMessage);
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setVendorToDelete(null);
+      setIsDeleteDialogOpen(false);
     }
   }
+
+  const handleDeleteClick = (id: string) => {
+    setVendorToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -249,8 +269,8 @@ export function VendorListPage() {
                         </DropdownMenuItem>
                         {isAdmin && (
                           <DropdownMenuItem 
-                            className="text-red-600"
-                            onClick={() => handleDeleteVendor(vendor.id)}
+                            onClick={() => handleDeleteClick(vendor.id)}
+                            className="text-red-600 focus:text-red-600"
                           >
                             Delete
                           </DropdownMenuItem>
@@ -264,6 +284,30 @@ export function VendorListPage() {
           </Table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the vendor
+              and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setVendorToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => vendorToDelete && handleDeleteVendor(vendorToDelete)}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

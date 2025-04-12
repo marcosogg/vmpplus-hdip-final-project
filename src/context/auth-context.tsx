@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { AuthContextType, AuthState } from '@/types/auth';
+import { updateLastLogin } from '@/lib/api/profiles';
 
 // Initial state
 const initialState: AuthState = {
@@ -81,6 +82,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         return { success: false, error: error.message };
+      }
+
+      // Update last login timestamp (fire and forget)
+      if (data.user) {
+        updateLastLogin(data.user.id).catch(error => {
+          console.error('Failed to update last login timestamp:', error);
+        });
       }
 
       return { success: true, error: null };

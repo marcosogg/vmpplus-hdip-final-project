@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -13,96 +14,96 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const { profile, userRole, isProfileLoading } = useUserProfile();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
   // Get initials for avatar fallback
-  const getInitials = (name: string | null) => {
-    if (!name) return 'U';
-    return name.split(' ')
-      .map(part => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('');
+  const getInitials = (name: string | null, email: string) => {
+    if (name) {
+      return name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase();
+    }
+    return email[0].toUpperCase();
+  };
+  
+  const getAvatarUrl = () => {
+    if (profile?.avatar_url) {
+      return profile.avatar_url;
+    }
+    // Default to male avatars for simplicity since we don't store gender in profile
+    return 'https://xsgames.co/randomusers/avatar.php?g=male';
   };
   
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Left Section: Breadcrumbs Placeholder */}
-          <div className="flex items-center">
-            <span className="text-lg font-semibold text-gray-700">Dashboard</span>
-            {/* Add Breadcrumb components here later if needed */}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <a className="mr-6 flex items-center space-x-2" href="/">
+            <span className="hidden font-bold sm:inline-block">
+              VMP PLUS
+            </span>
+          </a>
+        </div>
+
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <Button variant="outline" className="relative h-8 w-full justify-start text-sm font-normal md:w-40 lg:w-64">
+              <Search className="mr-2 h-4 w-4" />
+              <span className="hidden lg:inline-flex">Search...</span>
+            </Button>
           </div>
 
-          {/* Right Section: Actions, Search, Notifications, Profile */}
-          <div className="flex items-center space-x-4">
-            {/* Action Buttons Placeholder */}
-            <div className="hidden md:flex items-center space-x-2">
-              <button className="text-sm font-medium text-gray-600 hover:text-gray-900">App</button>
-              <button className="text-sm font-medium text-gray-600 hover:text-gray-900">Files</button>
-            </div>
+          <nav className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-4 w-4" />
+              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500" />
+            </Button>
 
-            {/* Search Icon Placeholder */}
-            <button className="p-1 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              <span className="sr-only">Search</span>
-              <Search className="h-5 w-5" aria-hidden="true" />
-            </button>
-
-            {/* Notifications Icon Placeholder */}
-            <button className="p-1 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              <span className="sr-only">View notifications</span>
-              <Bell className="h-5 w-5" aria-hidden="true" />
-              {/* Notification indicator can be added here */}
-            </button>
-
-            {/* Separator */}
-            <div className="hidden md:block h-6 w-px bg-gray-200" aria-hidden="true" />
-
-            {/* User Profile with Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2 pl-2 pr-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>{!isProfileLoading && profile ? getInitials(profile.full_name) : 'U'}</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden md:flex flex-col items-start">
-                    <span className="text-sm font-medium text-gray-700">
-                      {!isProfileLoading && profile ? profile.full_name || profile.email : 'Loading...'}
-                    </span>
-                    {!isProfileLoading && userRole && (
-                      <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                        {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                      </Badge>
-                    )}
-                    {isProfileLoading && (
-                      <Badge variant="outline" className="text-xs px-1 py-0 h-4 animate-pulse">
-                        Loading...
-                      </Badge>
-                    )}
-                  </div>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <NavLink to="/app/profile" className="w-full justify-start cursor-pointer">
+            {!isProfileLoading && profile && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage 
+                        src={getAvatarUrl()} 
+                        alt={profile.full_name || profile.email}
+                      />
+                      <AvatarFallback>{getInitials(profile.full_name, profile.email)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{profile.full_name || 'No name set'}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {profile.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/app/profile')}>
                     Profile
-                  </NavLink>
-                </DropdownMenuItem>
-                {userRole === 'admin' && (
-                  <DropdownMenuItem asChild>
-                    <NavLink to="/app/settings" className="w-full justify-start cursor-pointer">
-                      Settings
-                    </NavLink>
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <LogoutButton />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  <DropdownMenuItem onClick={() => navigate('/app/settings')}>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </nav>
         </div>
       </div>
     </header>

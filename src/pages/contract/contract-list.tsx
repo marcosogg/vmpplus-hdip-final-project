@@ -17,6 +17,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -27,6 +37,8 @@ export function ContractListPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [contractToDelete, setContractToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -74,6 +86,11 @@ export function ContractListPage() {
     }
   }
 
+  const handleDeleteClick = (id: string) => {
+    setContractToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
   async function handleDeleteContract(id: string) {
     setError(null);
     try {
@@ -106,6 +123,9 @@ export function ContractListPage() {
         description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setContractToDelete(null);
+      setIsDeleteDialogOpen(false);
     }
   }
 
@@ -226,8 +246,8 @@ export function ContractListPage() {
                         </DropdownMenuItem>
                         {isAdmin && (
                           <DropdownMenuItem 
-                            className="text-red-600"
-                            onClick={() => handleDeleteContract(contract.id)}
+                            onClick={() => handleDeleteClick(contract.id)}
+                            className="text-red-600 focus:text-red-600"
                           >
                             Delete
                           </DropdownMenuItem>
@@ -241,6 +261,30 @@ export function ContractListPage() {
           </Table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the contract
+              and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setContractToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => contractToDelete && handleDeleteContract(contractToDelete)}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

@@ -12,6 +12,9 @@ export interface Database {
           created_at: string
           updated_at: string
           role_id: string | null
+          job_title: string | null
+          last_login_at: string | null
+          avatar_url: string | null
         }
         Insert: {
           id: string
@@ -20,6 +23,9 @@ export interface Database {
           created_at?: string
           updated_at?: string
           role_id?: string | null
+          job_title?: string | null
+          last_login_at?: string | null
+          avatar_url?: string | null
         }
         Update: {
           id?: string
@@ -28,6 +34,9 @@ export interface Database {
           created_at?: string
           updated_at?: string
           role_id?: string | null
+          job_title?: string | null
+          last_login_at?: string | null
+          avatar_url?: string | null
         }
       }
       vendors: {

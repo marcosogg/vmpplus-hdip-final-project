@@ -222,8 +222,22 @@ export function ContractListPage() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {/* Access vendors.name from the joined table */}
-                    {contract.vendors?.name || 'Unknown Vendor'}
+                    <div className="flex items-center gap-2">
+                      {/* Vendor Logo */}
+                      {contract.vendors?.logo_url ? (
+                        <img 
+                          src={contract.vendors.logo_url} 
+                          alt={`${contract.vendors?.name || 'Vendor'} logo`}
+                          className="h-6 w-6 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">
+                          <span className="text-gray-400 text-xs">{(contract.vendors?.name || 'V').charAt(0)}</span>
+                        </div>
+                      )}
+                      {/* Vendor Name */}
+                      <span>{contract.vendors?.name || 'Unknown Vendor'}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">

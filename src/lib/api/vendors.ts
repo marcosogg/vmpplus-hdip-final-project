@@ -15,12 +15,22 @@ export type VendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type VendorUpdate = Database['public']['Tables']['vendors']['Update'];
 
 // Get all vendors
-export async function getVendors(): Promise<ApiResponse<Vendor[]>> {
+export async function getVendors(searchTerm: string | null = null): Promise<ApiResponse<Vendor[]>> {
   return handleApiError(async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from('vendors')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*');
+
+    // Apply search filter if searchTerm is provided
+    if (searchTerm) {
+      // Using 'ilike' for case-insensitive search. Adjust if exact match needed.
+      query = query.ilike('name', `%${searchTerm}%`); 
+    }
+    
+    // Apply default ordering
+    query = query.order('created_at', { ascending: false });
+
+    const { data, error } = await query;
       
     if (error) throw error;
     

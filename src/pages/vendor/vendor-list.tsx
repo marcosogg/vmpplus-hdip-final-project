@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getVendors, deleteVendor, Vendor } from '@/lib/api/vendors';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { supabase } from '@/lib/supabase';
 
+// Helper function to parse query params
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export function VendorListPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +49,8 @@ export function VendorListPage() {
   const { toast } = useToast();
   const { isAuthenticated, user } = useAuth();
   const { userRole } = useUserProfile();
+  const query = useQuery(); // Get query params hook
+  const searchTerm = query.get('search'); // Get search term from URL
   
   // Check if user is admin
   const isAdmin = userRole === 'admin';
@@ -63,11 +70,11 @@ export function VendorListPage() {
     console.log('Auth state:', { isAuthenticated, userId: user?.id });
     
     if (isAuthenticated) {
-      loadVendors();
+      loadVendors(searchTerm); // Pass search term here
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, searchTerm]); // Add searchTerm as dependency
 
-  async function loadVendors() {
+  async function loadVendors(search: string | null = null) {
     setIsLoading(true);
     setError(null);
     
@@ -89,7 +96,7 @@ export function VendorListPage() {
         return;
       }
       
-      const { data, error } = await getVendors();
+      const { data, error } = await getVendors(search);
       
       if (error) {
         console.error('Vendor fetch error:', error);
@@ -291,7 +298,7 @@ export function VendorListPage() {
                   <TableCell>{vendor.email || '-'}</TableCell>
                   <TableCell>{renderStatusBadge(vendor.status)}</TableCell>
                   <TableCell>{vendor.category || '-'}</TableCell>
-                  <TableCell>{renderRating(vendor.rating)}</TableCell>
+                  <TableCell>{renderRating(vendor.rating ?? null)}</TableCell>
                   <TableCell>{formatDate(vendor.created_at)}</TableCell>
                   <TableCell>
                     <DropdownMenu>

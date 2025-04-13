@@ -33,6 +33,17 @@ import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { supabase } from '@/lib/supabase';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+// Helper to get initials for AvatarFallback
+const getInitials = (name: string | null | undefined): string => {
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return '?';
+  }
+  const names = name.split(' ');
+  if (names.length === 1) return names[0].charAt(0).toUpperCase();
+  return names[0].charAt(0).toUpperCase() + names[names.length - 1].charAt(0).toUpperCase();
+};
 
 export function VendorListPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -245,9 +256,15 @@ export function VendorListPage() {
               {vendors.map((vendor) => (
                 <TableRow key={vendor.id}>
                   <TableCell className="font-medium">
-                    <Link to={`/app/vendors/${vendor.id}`} className="hover:underline text-primary">
-                      {vendor.name}
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={vendor.logo_url || undefined} alt={`${vendor.name} logo`} />
+                        <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
+                      </Avatar>
+                      <Link to={`/app/vendors/${vendor.id}`} className="hover:underline text-primary">
+                        {vendor.name}
+                      </Link>
+                    </div>
                   </TableCell>
                   <TableCell>{vendor.email || '-'}</TableCell>
                   <TableCell>{renderStatusBadge(vendor.status)}</TableCell>

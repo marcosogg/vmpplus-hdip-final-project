@@ -147,4 +147,130 @@ export async function getExpiringContractCount(): Promise<ApiResponse<number>> {
         return count || 0;
       })
   );
+}
+
+// Get recent contracts
+export async function getRecentContracts(limit: number): Promise<ApiResponse<Contract[]>> {
+  return handleApiError(
+    supabase
+      .from('contracts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+      .then(({ data, error }) => {
+        if (error) throw error;
+        // Ensure we return an empty array if data is null/undefined
+        return (data as Contract[] | null) || []; 
+      })
+  );
+}
+
+// Get contract count grouped by status (using direct query and JS processing)
+export async function getContractCountByStatus(): Promise<ApiResponse<{ status: string; count: number }[]>> {
+  return handleApiError(async () => {
+    // Fetch all contract statuses
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('status'); // Only select the status column
+
+    if (error) {
+      console.error("[getContractCountByStatus] Supabase query error:", error);
+      throw error;
+    }
+
+    // Process data in JavaScript to group and normalize status
+    const statusCounts: Record<string, number> = {};
+
+    (data || []).forEach(contract => {
+      let status = contract.status?.trim(); // Trim whitespace
+      
+      if (!status) { // Check for null, undefined, or empty string after trim
+        status = 'Unknown';
+      } else {
+         // Convert to Title Case (e.g., "active" -> "Active")
+         status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+      }
+      
+      // Increment count for the normalized status
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
+    });
+
+    // Convert the counts object into the desired array format
+    const processedData = Object.entries(statusCounts).map(([status, count]) => ({
+      status,
+      count
+    })).sort((a, b) => b.count - a.count); // Optional: sort by count descending
+
+    return processedData;
+  });
+}
+
+/*
+-- Required SQL Function for RPC (Execute in Supabase SQL Editor or add via migration):
+CREATE OR REPLACE FUNCTION get_total_contract_value_by_vendor(limit_count INT DEFAULT 10)
+RETURNS TABLE(name TEXT, total_value NUMERIC) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    v.name,
+    SUM(c.value) as total_value
+  FROM public.contracts c
+  JOIN public.vendors v ON c.vendor_id = v.id
+  WHERE c.value IS NOT NULL AND c.value > 0 -- Ensure value exists and is positive for meaningful sum
+  GROUP BY v.id, v.name -- Group by vendor id and name
+  ORDER BY total_value DESC
+  LIMIT limit_count;
+END; $$ LANGUAGE plpgsql;
+*/
+
+// Get total contract value grouped by vendor (top N)
+export async function getTotalContractValueByVendor(limit: number = 10): Promise<ApiResponse<{ name: string; total_value: number }[]>> {
+  return handleApiError(async () => {
+    // Instead of RPC, use a direct join and group by with PostgreSQL features
+    // This performs the same calculation without requiring a custom SQL function
+    const { data, error } = await supabase
+      .from('contracts')
+      .select(`
+        vendor_id,
+        vendors!inner (
+          name
+        ),
+        value
+      `)
+      .not('value', 'is', null) // Filter out null values
+      .gt('value', 0) // Only include positive values
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("[getTotalContractValueByVendor] Supabase query error:", error);
+      throw error;
+    }
+
+    // Process the data to calculate sums by vendor
+    const vendorSums: Record<string, { name: string; total_value: number }> = {};
+
+    // Group and sum the data manually
+    data?.forEach(item => {
+      // Extract vendor name from the joined data
+      const vendorName = item.vendors?.name;
+      if (!vendorName) return; // Skip if name is missing
+      
+      // Parse value to ensure it's a number
+      const value = typeof item.value === 'number' ? item.value : 
+                   (typeof item.value === 'string' ? parseFloat(item.value) : 0);
+      
+      // Initialize or update the vendor sum
+      if (!vendorSums[vendorName]) {
+        vendorSums[vendorName] = { name: vendorName, total_value: 0 };
+      }
+      vendorSums[vendorName].total_value += value;
+    });
+
+    // Convert to array, sort by total_value, and limit
+    const result = Object.values(vendorSums)
+      .sort((a, b) => b.total_value - a.total_value)
+      .slice(0, limit);
+
+    return result;
+  });
 } 

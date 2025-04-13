@@ -19,6 +19,17 @@ import { EditIcon, Trash2Icon, FileIcon } from 'lucide-react';
 import { DocumentList } from '@/components/document/document-list';
 import { DocumentUpload } from '@/components/document/document-upload';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+// Helper to get initials for AvatarFallback
+const getInitials = (name: string | null | undefined): string => {
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return '?';
+  }
+  const names = name.split(' ');
+  if (names.length === 1) return names[0].charAt(0).toUpperCase();
+  return names[0].charAt(0).toUpperCase() + names[names.length - 1].charAt(0).toUpperCase();
+};
 
 export function VendorDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -180,7 +191,15 @@ export function VendorDetailPage() {
   return (
     <div className="container mx-auto py-6">
       <PageHeader 
-        title={vendor.name}
+        title={
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={vendor.logo_url || undefined} alt={`${vendor.name} logo`} />
+              <AvatarFallback>{getInitials(vendor.name)}</AvatarFallback>
+            </Avatar>
+            <span>{vendor.name}</span>
+          </div>
+        }
         description="Vendor details and related information"
         actions={
           <div className="flex space-x-2">

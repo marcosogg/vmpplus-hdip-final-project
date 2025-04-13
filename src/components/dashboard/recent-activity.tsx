@@ -1,59 +1,143 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { FilePenLine, CheckCircle, AlertTriangle, Star } from 'lucide-react';
+import { FileText, Users, AlertTriangle, CheckCircle, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Vendor } from '@/lib/api/vendors';
+import { Contract } from '@/lib/api/contracts';
 
-interface Activity {
-  id: number;
-  icon: React.ElementType;
-  iconBg: string; // bg-blue-100 etc.
-  iconColor: string; // text-blue-600 etc.
-  descriptionParts: (string | { text: string; bold: boolean })[]; // Use bold flag
-  timestamp: string;
+type ActivityFeedItem = (Vendor & { type: 'vendor' }) | (Contract & { type: 'contract' });
+
+interface RecentActivityProps {
+  activities: ActivityFeedItem[] | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
-// Mock Data with parsed description using bold flag
-const recentActivities: Activity[] = [
-  { id: 1, icon: FilePenLine, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', descriptionParts: ['New contract signed with ', { text: 'Amazon Web Services', bold: true }, '.'], timestamp: '2 hours ago' },
-  { id: 2, icon: CheckCircle, iconBg: 'bg-green-100', iconColor: 'text-green-600', descriptionParts: ['Vendor ', { text: 'IBM Solutions', bold: true }, ' submitted documents for review.'], timestamp: '5 hours ago' },
-  { id: 3, icon: AlertTriangle, iconBg: 'bg-yellow-100', iconColor: 'text-yellow-600', descriptionParts: ['Contract with ', { text: 'FedEx Logistics', bold: true }, ' expires in 30 days.'], timestamp: 'Yesterday' },
-  { id: 4, icon: Star, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', descriptionParts: [{ text: 'Adobe Systems', bold: true }, ' received a 5-star rating.'], timestamp: '2 days ago' },
-];
+const formatTimestamp = (timestamp: string | null | undefined): string => {
+  if (!timestamp) return 'Unknown time';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffSeconds = Math.round((now.getTime() - date.getTime()) / 1000);
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const diffHours = Math.round(diffMinutes / 60);
+  const diffDays = Math.round(diffHours / 24);
 
-export function RecentActivity() {
-  return (
-    <Card className="bg-white rounded-lg shadow-sm border border-gray-200">
-      <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-lg font-medium text-gray-700">Recent Activities</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="space-y-0">
-          {recentActivities.map((activity, index) => (
-            <div 
-              key={activity.id} 
-              className={cn(
-                "flex items-start gap-3 p-4",
-                index < recentActivities.length - 1 ? "border-b border-gray-100" : ""
-              )}
+  if (diffSeconds < 60) return `${diffSeconds}s ago`;
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
+export function RecentActivity({ activities, isLoading, error }: RecentActivityProps) {
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4 p-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="p-4 text-center text-red-600 flex items-center justify-center gap-2">
+          <AlertTriangle className="h-5 w-5" />
+          <span>Error loading activities: {error.split(';')[0]}</span>
+        </div>
+      );
+    }
+
+    if (!activities || activities.length === 0) {
+      return (
+        <div className="p-4 text-center text-gray-500">
+          No recent activity found.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {activities.map((activity, index) => {
+          const timestamp = formatTimestamp(activity.created_at);
+          let icon;
+          let description: React.ReactNode;
+
+          if (activity.type === 'vendor') {
+            // New vendor added
+            icon = <Users className="h-5 w-5 text-blue-500" />;
+            description = (
+              <>
+                New vendor added: <span className="font-medium">{activity.name || 'Unknown Vendor'}</span>
+              </>
+            );
+          } else if (activity.type === 'contract') {
+            // For contracts, determine if it's a new contract, expiring, or document submitted
+            if (activity.status === 'active' || activity.status === 'pending') {
+              // New contract signed
+              icon = <CheckCircle className="h-5 w-5 text-green-500" />;
+              description = (
+                <>
+                  New contract signed with <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span>
+                </>
+              );
+            } else if (activity.status === 'expired' || 
+                     (activity.end_date && new Date(activity.end_date).getTime() < new Date().getTime() + 30 * 24 * 60 * 60 * 1000)) {
+              // Contract expiring or expired
+              icon = <AlertTriangle className="h-5 w-5 text-amber-500" />;
+              description = (
+                <>
+                  Contract with <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span> expires in 30 days
+                </>
+              );
+            } else {
+              // Default contract activity (document submitted)
+              icon = <FileText className="h-5 w-5 text-blue-500" />;
+              description = (
+                <>
+                  Vendor <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span> submitted documents for review
+                </>
+              );
+            }
+          } else {
+            // Fallback for unknown activity types
+            icon = <FileText className="h-5 w-5 text-gray-500" />;
+            description = "Unknown activity";
+          }
+
+          return (
+            <div
+              key={`${activity.type}-${activity.id}`}
+              className="flex items-start gap-3 p-3"
             >
-              <div className={cn("p-2 rounded-full flex items-center justify-center", activity.iconBg)}>
-                <activity.icon className={cn("h-4 w-4", activity.iconColor)} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm text-gray-700">
-                  {activity.descriptionParts.map((part, i) =>
-                    typeof part === 'string' ? (
-                      <React.Fragment key={i}>{part}</React.Fragment>
-                    ) : (
-                      <span key={i} className={cn(part.bold ? 'font-medium text-gray-900' : '')}>{part.text}</span>
-                    )
-                  )}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">{activity.timestamp}</p>
+              <div className="mt-0.5">{icon}</div>
+              <div className="flex-1">
+                <p className="text-gray-900">{description}</p>
+                <p className="text-sm text-gray-500">{timestamp}</p>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+    <Card className="bg-white shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl font-semibold">Recent Activities</CardTitle>
+        <Button variant="link" size="sm" className="text-blue-600 font-medium">
+          View All
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {renderContent()}
       </CardContent>
     </Card>
   );

@@ -17,11 +17,33 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { getVendors } from '@/lib/api/vendors';
 
 const Header: React.FC = () => {
   const { profile, userRole, isProfileLoading } = useUserProfile();
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  
+  // State for vendor search
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  
+  // Handle search input change
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setSearchTerm(newValue);
+  };
+  
+  // Handle search submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Navigate to dashboard with search term
+      navigate(`/app/dashboard?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
   
   // Get initials for avatar fallback
   const getInitials = (name: string | null, email: string) => {
@@ -50,14 +72,16 @@ const Header: React.FC = () => {
           <img src="/images/vmp-logo-master.png" alt="VMP PLUS" className="h-8 w-auto" />
         </div>
         <div className="flex items-center space-x-4">
-          <div className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input
               type="search"
-              placeholder="Search..."
+              placeholder="Search vendors..."
               className="w-64 pl-8 rounded-md border border-gray-300 dark:border-gray-600"
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
-          </div>
+          </form>
           <Button variant="ghost" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">

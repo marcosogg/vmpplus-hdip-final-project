@@ -10,10 +10,12 @@ import {
   CheckCircle,
   Filter,
   ChevronDown,
+  Briefcase,
+  Search
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getVendorCount } from '@/lib/api/vendors';
-import { getContractCount, getExpiringContractCount } from '@/lib/api/contracts';
+import { Vendor, getVendorCount, getActiveVendorCount, getRecentVendors, getVendorCountByCategory, getTopScoredVendors, getVendors } from '@/lib/api/vendors';
+import { Contract, getContractCount, getExpiringContractCount, getRecentContracts, getContractCountByStatus, getTotalContractValueByVendor } from '@/lib/api/contracts';
 import { getDocumentCount } from '@/lib/api/documents';
 import { ApiResponse } from '@/types/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,53 +32,385 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LineChart, DonutChart, PieChart, BarChart } from "@/components/ui/charts";
+import { RecentVendorsList } from '@/components/dashboard/recent-vendors-list';
+import { TopScoredVendorsList } from '@/components/dashboard/TopScoredVendorsList';
+import { RecentActivity } from '@/components/dashboard/recent-activity';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useLocation } from 'react-router-dom';
+
+// Define constants for limits
+const ACTIVITY_LIMIT = 4;
+const SPEND_CHART_LIMIT = 7;
+const TOP_VENDORS_LIMIT = 4;
+
+// Define types for chart data
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label?: string;
+    data: number[];
+    backgroundColor?: string | string[];
+    borderColor?: string | string[];
+    borderWidth?: number;
+    tension?: number;
+    pointBackgroundColor?: string;
+    pointBorderColor?: string;
+    pointHoverBackgroundColor?: string;
+    pointHoverBorderColor?: string;
+    borderRadius?: number;
+  }[];
+}
+
+// Define a type for the combined activity feed items
+type ActivityFeedItem = (Vendor & { type: 'vendor' }) | (Contract & { type: 'contract' });
 
 export function DashboardPage() {
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Specific state for Vendor Categories Chart
+  const [isCategoryChartLoading, setIsCategoryChartLoading] = useState(true);
+  const [categoryChartError, setCategoryChartError] = useState<string | null>(null);
+  const [vendorCategoryChartData, setVendorCategoryChartData] = useState<ChartData | null>(null);
+
+  // Specific state for Contract Status Chart
+  const [isStatusChartLoading, setIsStatusChartLoading] = useState(true);
+  const [statusChartError, setStatusChartError] = useState<string | null>(null);
+  const [contractStatusChartData, setContractStatusChartData] = useState<ChartData | null>(null);
+
+  // Specific state for Spend by Vendor Chart
+  const [isSpendChartLoading, setIsSpendChartLoading] = useState(true);
+  const [spendChartError, setSpendChartError] = useState<string | null>(null);
+  const [spendByVendorChartData, setSpendByVendorChartData] = useState<ChartData | null>(null);
+
+  // Specific state for Top Scored Vendors List
+  const [isTopVendorsLoading, setIsTopVendorsLoading] = useState(true);
+  const [topVendorsError, setTopVendorsError] = useState<string | null>(null);
+  const [topScoredVendorsData, setTopScoredVendorsData] = useState<Vendor[] | null>(null);
+
+  // State for Vendor Search - modified to get from URL
+  const searchParams = new URLSearchParams(location.search);
+  const initialSearchTerm = searchParams.get('search') || '';
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [searchResults, setSearchResults] = useState<Vendor[] | null>(null);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
   const [counts, setCounts] = useState({
     vendors: 0,
     contracts: 0,
     expiring: 0,
-    documents: 0
+    documents: 0,
+    activeVendors: 0
   });
+  const [recentVendorsData, setRecentVendorsData] = useState<Vendor[] | null>(null);
+  const [activityFeedData, setActivityFeedData] = useState<ActivityFeedItem[] | null>(null);
 
   useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      setError(null);
+      setActivityFeedData(null);
+      setRecentVendorsData(null);
+      setIsCategoryChartLoading(true);
+      setCategoryChartError(null);
+      setVendorCategoryChartData(null);
+      setIsStatusChartLoading(true);
+      setStatusChartError(null);
+      setContractStatusChartData(null);
+      // Reset specific chart states
+      setIsSpendChartLoading(true);
+      setSpendChartError(null);
+      setSpendByVendorChartData(null);
+      // Reset specific list states
+      setIsTopVendorsLoading(true);
+      setTopVendorsError(null);
+      setTopScoredVendorsData(null);
 
-        const [
-          vendorsResponse,
-          contractsResponse,
-          expiringResponse,
-        ] = await Promise.all([
+      try {
+        const results = await Promise.allSettled([
           getVendorCount(),
           getContractCount(),
           getExpiringContractCount(),
+          getDocumentCount(),
+          getActiveVendorCount(),
+          getRecentVendors(ACTIVITY_LIMIT),
+          getRecentContracts(ACTIVITY_LIMIT),
+          getVendorCountByCategory(),
+          getContractCountByStatus(),
+          getTotalContractValueByVendor(SPEND_CHART_LIMIT),
+          getTopScoredVendors(TOP_VENDORS_LIMIT)
         ]);
 
-        if (vendorsResponse.error) throw new Error(vendorsResponse.error.message);
-        if (contractsResponse.error) throw new Error(contractsResponse.error.message);
-        if (expiringResponse.error) throw new Error(expiringResponse.error.message);
+        const errors: string[] = [];
+        results.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(`API call ${index} failed:`, result.reason);
+            const message = result.reason instanceof Error ? result.reason.message : 'Unknown API error';
+            const nestedMessage = (result.reason as any)?.error?.message;
+            errors.push(nestedMessage || message);
+          }
+        });
+
+        if (errors.length > 0) {
+          throw new Error(`Failed to load some dashboard data: ${errors.slice(0, 2).join('; ')}`);
+        }
+
+        const [ 
+          vendorsResponse,
+          contractsResponse,
+          expiringResponse,
+          documentsResponse,
+          activeVendorsResponse,
+          recentVendorsResponse,
+          recentContractsResponse,
+          categoryCountResponse,
+          statusCountResponse,
+          spendByVendorResponse,
+          topVendorsResponse
+        ] = results.map(r => (r.status === 'fulfilled' ? r.value : { data: null, error: 'Failed' }));
 
         setCounts({
-          vendors: vendorsResponse.data ?? 0,
-          contracts: contractsResponse.data ?? 0,
-          expiring: expiringResponse.data ?? 0,
-          documents: 0,
+          vendors: (vendorsResponse as ApiResponse<number>).data ?? 0,
+          contracts: (contractsResponse as ApiResponse<number>).data ?? 0,
+          expiring: (expiringResponse as ApiResponse<number>).data ?? 0,
+          documents: (documentsResponse as ApiResponse<number>).data ?? 0,
+          activeVendors: (activeVendorsResponse as ApiResponse<number>).data ?? 0
         });
+
+        const recentVendors = (recentVendorsResponse as ApiResponse<Vendor[]>).data ?? [];
+        setRecentVendorsData(recentVendors);
+
+        const recentContracts = (recentContractsResponse as ApiResponse<Contract[]>).data ?? [];
+        const typedVendors = recentVendors.map(v => ({ ...v, type: 'vendor' as const }));
+        const typedContracts = recentContracts.map(c => ({ ...c, type: 'contract' as const }));
+        const combinedActivities = [...typedVendors, ...typedContracts];
+        combinedActivities.sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            return dateB - dateA;
+        });
+        // Slice the combined and sorted activities to get only the 4 most recent
+        const finalActivities = combinedActivities.slice(0, ACTIVITY_LIMIT);
+        setActivityFeedData(finalActivities);
+
+        setIsCategoryChartLoading(false);
+        const categoryResultError = categoryCountResponse.error;
+        if (categoryResultError) {
+           const errorMessage = (typeof categoryResultError === 'object' && categoryResultError !== null && 'message' in categoryResultError) 
+             ? categoryResultError.message 
+             : (typeof categoryResultError === 'string' ? categoryResultError : 'Failed to load category data');
+           setCategoryChartError(errorMessage);
+        } else {
+          const categoryData = (categoryCountResponse as ApiResponse<{ category: string; count: number }[]>).data ?? [];
+          if (categoryData.length > 0) {
+            const labels = categoryData.map(item => item.category);
+            const data = categoryData.map(item => item.count);
+            const backgroundColors = [
+                "rgba(99, 102, 241, 0.8)",
+                "rgba(59, 130, 246, 0.8)",
+                "rgba(16, 185, 129, 0.8)",
+                "rgba(245, 158, 11, 0.8)",
+                "rgba(239, 68, 68, 0.8)",
+                "rgba(107, 114, 128, 0.8)",
+            ];
+            setVendorCategoryChartData({
+              labels,
+              datasets: [
+                {
+                  label: "Vendors by Category",
+                  data,
+                  backgroundColor: backgroundColors.slice(0, data.length),
+                  borderColor: '#fff',
+                  borderWidth: 2,
+                },
+              ],
+            });
+          } else {
+            setVendorCategoryChartData({ labels: ['No Categories Found'], datasets: [{ data: [1], backgroundColor: ["rgba(107, 114, 128, 0.8)"] }] });
+          }
+        }
+
+        setIsStatusChartLoading(false);
+        const statusResultError = statusCountResponse.error;
+        if (statusResultError) {
+          const errorMessage = (typeof statusResultError === 'object' && statusResultError !== null && 'message' in statusResultError) 
+            ? statusResultError.message 
+            : (typeof statusResultError === 'string' ? statusResultError : 'Failed to load status data');
+          setStatusChartError(errorMessage);
+        } else {
+          const statusData = (statusCountResponse as ApiResponse<{ status: string; count: number }[]>).data ?? [];
+          // Define colors based on potential statuses (adjust as needed)
+          const statusColors: { [key: string]: string } = {
+            Active: "rgba(16, 185, 129, 0.8)",    // green
+            Pending: "rgba(245, 158, 11, 0.8)",   // amber
+            Expired: "rgba(107, 114, 128, 0.8)",  // gray
+            Terminated: "rgba(239, 68, 68, 0.8)",  // red
+            Draft: "rgba(59, 130, 246, 0.8)",     // blue
+            Unknown: "rgba(156, 163, 175, 0.8)"    // light gray
+          };
+
+          if (statusData.length > 0) {
+            const labels = statusData.map(item => item.status.charAt(0).toUpperCase() + item.status.slice(1)); // Capitalize status
+            const data = statusData.map(item => item.count);
+            // Define colors based on potential statuses (adjust as needed)
+            const backgroundColors = labels.map(label => statusColors[label] || statusColors.Unknown);
+
+            setContractStatusChartData({
+              labels,
+              datasets: [
+                {
+                  label: "Contract Status",
+                  data,
+                  backgroundColor: backgroundColors,
+                  borderColor: '#fff',
+                  borderWidth: 2,
+                },
+              ],
+            });
+          } else {
+            setContractStatusChartData({ labels: ['No Contracts Found'], datasets: [{ data: [1], backgroundColor: [statusColors.Unknown] }] });
+          }
+        }
+
+        // --- Process Spend by Vendor Chart Data ---
+        setIsSpendChartLoading(false); // Set loading false after the call is settled
+        const spendResultError = spendByVendorResponse.error;
+        if (spendResultError) {
+          const errorMessage = (typeof spendResultError === 'object' && spendResultError !== null && 'message' in spendResultError) 
+            ? spendResultError.message 
+            : (typeof spendResultError === 'string' ? spendResultError : 'Failed to load spend data');
+          // Check for specific RPC error message
+           if (errorMessage.includes('RPC function get_total_contract_value_by_vendor not found')) {
+             setSpendChartError('Setup Error: SQL function missing. Please run the required SQL.');
+           } else {
+             setSpendChartError(errorMessage);
+           }
+        } else {
+          const spendData = (spendByVendorResponse as ApiResponse<{ name: string; total_value: number }[]>).data ?? [];
+          if (spendData.length > 0) {
+            const labels = spendData.map(item => item.name);
+            const data = spendData.map(item => item.total_value);
+            // Consistent colors for bar chart
+            const backgroundColors = [
+                "rgba(99, 102, 241, 0.8)",
+                "rgba(59, 130, 246, 0.8)",
+                "rgba(16, 185, 129, 0.8)",
+                "rgba(245, 158, 11, 0.8)",
+                "rgba(239, 68, 68, 0.8)",
+                "rgba(107, 114, 128, 0.8)",
+                "rgba(156, 163, 175, 0.8)" // Add more if SPEND_CHART_LIMIT increases
+              ];
+
+            setSpendByVendorChartData({
+              labels,
+              datasets: [
+                {
+                  label: "Total Contract Value", // Simplified label
+                  data,
+                  backgroundColor: backgroundColors.slice(0, data.length),
+                  borderRadius: 4,
+                },
+              ],
+            });
+          } else {
+            setSpendByVendorChartData({ labels: ['No Spend Data Available'], datasets: [{ data: [0], backgroundColor: ["rgba(107, 114, 128, 0.8)"] }] });
+          }
+        }
+        // ----------------------------------------
+
+        // --- Process Top Scored Vendors List Data ---
+        setIsTopVendorsLoading(false); // Set loading false after the call is settled
+        const topVendorsResultError = topVendorsResponse.error;
+        if (topVendorsResultError) {
+          const errorMessage = (typeof topVendorsResultError === 'object' && topVendorsResultError !== null && 'message' in topVendorsResultError) 
+            ? topVendorsResultError.message 
+            : (typeof topVendorsResultError === 'string' ? topVendorsResultError : 'Failed to load top vendors');
+           setTopVendorsError(errorMessage);
+        } else {
+           const topVendorsData = (topVendorsResponse as ApiResponse<Vendor[]>).data ?? [];
+           setTopScoredVendorsData(topVendorsData);
+        }
+        // ----------------------------------------
+
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+        console.error("Dashboard fetch error:", err);
+        setError(errorMessage);
+        setCounts({ vendors: 0, contracts: 0, expiring: 0, documents: 0, activeVendors: 0 });
+        setRecentVendorsData(null);
+        setActivityFeedData(null);
+        setCategoryChartError(errorMessage);
+        setVendorCategoryChartData(null);
+        setStatusChartError(errorMessage);
+        setContractStatusChartData(null);
+        setSpendChartError(errorMessage);
+        setSpendByVendorChartData(null);
+        setTopVendorsError(errorMessage);
+        setTopScoredVendorsData(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCounts();
+    fetchDashboardData();
   }, []);
 
+  // useEffect for checking search term from URL params
+  useEffect(() => {
+    const urlSearchTerm = searchParams.get('search') || '';
+    if (urlSearchTerm !== searchTerm) {
+      setSearchTerm(urlSearchTerm);
+    }
+  }, [location.search]);
+
+  // useEffect for fetching search results when debouncedSearchTerm changes
+  useEffect(() => {
+    console.log(`[Dashboard] Debounced search term changed: "${debouncedSearchTerm}"`);
+    
+    const fetchSearchResults = async () => {
+      // Clear previous results if search term is empty
+      if (!debouncedSearchTerm || !debouncedSearchTerm.trim()) {
+        console.log('[Dashboard] Search term empty, clearing results');
+        setSearchResults(null);
+        setIsSearchLoading(false);
+        setSearchError(null);
+        return;
+      }
+
+      console.log(`[Dashboard] Fetching search results for: "${debouncedSearchTerm}"`);
+      setIsSearchLoading(true);
+      setSearchError(null);
+
+      try {
+        // Call the modified getVendors function with the debounced term
+        const response = await getVendors(debouncedSearchTerm);
+        console.log('[Dashboard] Search API response:', response);
+        
+        if (response.error) {
+          console.error('[Dashboard] Search API error:', response.error);
+          throw response.error;
+        }
+        
+        console.log(`[Dashboard] Search returned ${response.data?.length || 0} results`);
+        setSearchResults(response.data ?? []);
+      } catch (err) {
+        console.error("[Dashboard] Search fetch error:", err);
+        const message = err instanceof Error ? err.message : 'Failed to search vendors';
+        setSearchError(message);
+        setSearchResults([]); // Set empty array on error to indicate no results found
+      } finally {
+        setIsSearchLoading(false);
+      }
+    };
+
+    fetchSearchResults();
+    // Dependency array includes the debounced search term
+  }, [debouncedSearchTerm]);
+
+  // Mock Vendor Growth Data (replace later if needed)
   const vendorGrowthData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
@@ -93,120 +427,6 @@ export function DashboardPage() {
       },
     ],
   };
-
-  const vendorCategoriesData = {
-    labels: ["IT Services", "Logistics", "Software", "Hardware", "Consulting", "Other"],
-    datasets: [
-      {
-        label: "Vendors by Category",
-        data: [4, 3, 5, 2, 3, 1],
-        backgroundColor: [
-          "rgba(99, 102, 241, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(107, 114, 128, 0.8)",
-        ],
-        borderColor: '#fff',
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const contractStatusData = {
-    labels: ["Active", "Pending", "Expiring Soon", "Expired"],
-    datasets: [
-      {
-        label: "Contract Status",
-        data: [5, 2, 3, 1],
-        backgroundColor: [
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(107, 114, 128, 0.8)",
-        ],
-        borderColor: '#fff',
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const spendByVendorData = {
-    labels: ["Amazon Web Services", "Microsoft", "Salesforce", "Oracle", "Adobe", "Others"],
-    datasets: [
-      {
-        label: "Spend by Vendor ($K)",
-        data: [120, 85, 65, 45, 30, 55],
-        backgroundColor: [
-          "rgba(99, 102, 241, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(107, 114, 128, 0.8)",
-        ],
-        borderRadius: 4,
-      },
-    ],
-  };
-
-  const recentVendors = [
-    {
-      id: "aws", name: "Amazon Web Services", category: "Cloud Services",
-      logo: "https://logo.clearbit.com/amazon.com", status: "active" as const, contracts: 3,
-    },
-    {
-      id: "fedex", name: "FedEx Logistics", category: "Shipping",
-      logo: "https://logo.clearbit.com/fedex.com", status: "active" as const, contracts: 2,
-    },
-    {
-      id: "ibm", name: "IBM Solutions", category: "IT Services",
-      logo: "https://logo.clearbit.com/ibm.com", status: "pending" as const, contracts: 1,
-    },
-    {
-      id: "msft", name: "Microsoft", category: "Software & Cloud",
-      logo: "https://logo.clearbit.com/microsoft.com", status: "active" as const, contracts: 4,
-    },
-  ];
-
-  const recentActivities = [
-    {
-      id: 1, type: "contract_signed" as const, vendor: "Amazon Web Services", time: "2 hours ago",
-      icon: CheckCircle, iconColor: "text-green-500",
-    },
-    {
-      id: 2, type: "document_submitted" as const, vendor: "IBM Solutions", time: "5 hours ago",
-      icon: FileText, iconColor: "text-blue-500",
-    },
-    {
-      id: 3, type: "contract_expiring" as const, vendor: "FedEx Logistics", time: "Yesterday",
-      icon: AlertTriangle, iconColor: "text-amber-500", details: "expires in 30 days",
-    },
-    {
-      id: 4, type: "rating_received" as const, vendor: "Adobe Systems", time: "2 days ago",
-      icon: Star, iconColor: "text-purple-500", details: "received a 5-star rating",
-    },
-  ];
-
-  const topRatedVendors = [
-    {
-      id: "sfdc", name: "Salesforce", category: "CRM Solutions",
-      logo: "https://logo.clearbit.com/salesforce.com", rating: 4.8, status: "active" as const, contracts: 2,
-    },
-    {
-      id: "msft2", name: "Microsoft", category: "Software & Cloud",
-      logo: "https://logo.clearbit.com/microsoft.com", rating: 4.0, status: "active" as const, contracts: 4,
-    },
-    {
-      id: "adobe", name: "Adobe Systems", category: "Creative Software",
-      logo: "https://logo.clearbit.com/adobe.com", rating: 5.0, status: "pending" as const, contracts: 1,
-    },
-    {
-      id: "oracle", name: "Oracle", category: "Database Solutions",
-      logo: "https://logo.clearbit.com/oracle.com", rating: 4.2, status: "active" as const, contracts: 3,
-    },
-  ];
 
   if (error) {
     return (
@@ -248,247 +468,223 @@ export function DashboardPage() {
               iconColor="text-green-600"
             />
             <SummaryCard 
+              title="Total Documents" 
+              value={counts.documents.toString()}
+              change="+8% from last month"
+              icon={FileText}
+              iconBgColor="bg-cyan-100"
+              iconColor="text-cyan-600"
+            />
+            <SummaryCard 
+              title="Active Vendors" 
+              value={counts.activeVendors.toString()}
+              change="Updated"
+              icon={Briefcase}
+              iconBgColor="bg-purple-100"
+              iconColor="text-purple-600"
+            />
+            <SummaryCard 
               title="Pending Approvals" 
               value={counts.expiring.toString()}
               change="+3 urgent"
               icon={AlertTriangle}
               iconBgColor="bg-yellow-100"
               iconColor="text-yellow-600"
-              isUrgent={true}
-            />
-            <SummaryCard 
-              title="Avg. Rating" 
-              value="4.2"
-              change="+0.3 from last quarter"
-              icon={Star}
-              iconBgColor="bg-purple-100"
-              iconColor="text-purple-600"
+              isUrgent={counts.expiring > 0}
             />
           </>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-             <CardTitle className="text-lg font-medium">Vendor Growth</CardTitle>
-             <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                 <Button variant="outline" size="sm" className="gap-1">
-                   <span>Last 6 Months</span>
-                   <ChevronDown className="h-4 w-4" />
-                 </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent align="end">
-                 <DropdownMenuItem>Last 3 Months</DropdownMenuItem>
-                 <DropdownMenuItem>Last 6 Months</DropdownMenuItem>
-                 <DropdownMenuItem>Last Year</DropdownMenuItem>
-                 <DropdownMenuItem>All Time</DropdownMenuItem>
-               </DropdownMenuContent>
-             </DropdownMenu>
-           </CardHeader>
-          <CardContent>
-             <div className="h-[300px]">
-               <LineChart
-                 data={vendorGrowthData}
-                 options={{
-                   plugins: { legend: { display: true, position: 'top' as const } },
-                   scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-                 }}
-               />
-             </div>
-           </CardContent>
-        </Card>
-
-        <Card>
-           <CardHeader className="flex flex-row items-center justify-between pb-2">
-             <CardTitle className="text-lg font-medium">Vendor Categories</CardTitle>
-             <Button variant="outline" size="sm" className="gap-1">
-               <Filter className="h-4 w-4" />
-               <span>Filter</span>
-             </Button>
-           </CardHeader>
-           <CardContent>
-             <div className="h-[300px]">
-               <DonutChart
-                 data={vendorCategoriesData}
-                 options={{
-                   plugins: { legend: { position: 'right' as const } },
-                 }}
-               />
-             </div>
-           </CardContent>
-         </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <Card>
-           <CardHeader>
-             <CardTitle className="text-lg font-medium">Contract Status</CardTitle>
-           </CardHeader>
-           <CardContent>
-             <div className="h-[250px]">
-               <PieChart
-                 data={contractStatusData}
-                 options={{
-                   plugins: { legend: { position: 'right' as const } },
-                 }}
-               />
-             </div>
-           </CardContent>
-         </Card>
-
-         <Card>
-           <CardHeader>
-             <CardTitle className="text-lg font-medium">Spend by Vendor</CardTitle>
-           </CardHeader>
-           <CardContent>
-             <div className="h-[250px]">
-               <BarChart
-                 data={spendByVendorData}
-                 options={{
-                   indexAxis: 'y' as const,
-                   plugins: { legend: { display: true, position: 'top' as const } },
-                   scales: { x: { beginAtZero: true } },
-                 }}
-               />
-             </div>
-           </CardContent>
-         </Card>
-       </div>
-
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <Card>
-           <CardHeader className="flex flex-row items-center justify-between pb-2">
-             <CardTitle className="text-lg font-medium">Recent Vendors</CardTitle>
-             <Button variant="link" size="sm" className="text-indigo-600 h-auto p-0">
-               View All
-             </Button>
-           </CardHeader>
-           <CardContent className="space-y-4">
-             {recentVendors.map((vendor) => (
-               <div
-                 key={vendor.id}
-                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-               >
-                 <div className="flex items-center gap-3">
-                   <Avatar className="h-10 w-10">
-                     <AvatarImage src={vendor.logo} alt={vendor.name} />
-                     <AvatarFallback>{vendor.name.substring(0, 2)}</AvatarFallback>
-                   </Avatar>
-                   <div>
-                     <p className="font-medium text-sm">{vendor.name}</p>
-                     <p className="text-xs text-gray-500 dark:text-gray-400">{vendor.category}</p>
+      {/* Conditional Rendering: Search Results or Default Dashboard View */}
+      {searchTerm ? (
+          <div className="pt-4">
+            <h2 className="text-xl font-semibold mb-4">
+              Search Results for "{searchTerm}"
+              {!isSearchLoading && searchResults && <span className="text-sm text-gray-500 ml-2">
+                ({searchResults.length} {searchResults.length === 1 ? 'result' : 'results'})
+              </span>}
+            </h2>
+            
+            {isSearchLoading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, index) => (
+                  <Skeleton key={index} className="h-20 w-full rounded" />
+                ))}
+              </div>
+            ) : searchError ? (
+              <div className="text-red-500 p-4 border border-red-200 rounded-lg bg-red-50 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                <span>Error searching vendors: {searchError}</span>
+              </div>
+            ) : searchResults && searchResults.length === 0 ? (
+              <div className="text-gray-500 p-6 border border-gray-200 rounded-lg bg-gray-50 text-center">
+                <p>No vendors found matching "{searchTerm}"</p>
+                <p className="text-sm mt-1">Try a different search term or check spelling</p>
+              </div>
+            ) : (
+              <RecentVendorsList
+                vendors={searchResults}
+                isLoading={isSearchLoading}
+                error={searchError}
+              />
+            )}
+          </div>
+        ) : (
+          // Render Default Dashboard Sections
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                   <CardTitle className="text-lg font-medium">Vendor Growth</CardTitle>
+                   <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                       <Button variant="outline" size="sm" className="gap-1">
+                         <span>Last 6 Months</span>
+                         <ChevronDown className="h-4 w-4" />
+                       </Button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent align="end">
+                       <DropdownMenuItem>Last 3 Months</DropdownMenuItem>
+                       <DropdownMenuItem>Last 6 Months</DropdownMenuItem>
+                       <DropdownMenuItem>Last Year</DropdownMenuItem>
+                       <DropdownMenuItem>All Time</DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                 </CardHeader>
+                <CardContent>
+                   <div className="h-[300px]">
+                     <LineChart
+                       data={vendorGrowthData}
+                       options={{
+                         plugins: { legend: { display: true, position: 'top' as const } },
+                         scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                       }}
+                     />
                    </div>
-                 </div>
-                 <div className="flex items-center gap-3">
-                   <Badge
-                     variant={ vendor.status === "active" ? "secondary" : "outline" }
-                     className="text-[10px] px-1.5 py-0 leading-none"
-                   >
-                     {vendor.status.charAt(0).toUpperCase() + vendor.status.slice(1)}
-                   </Badge>
-                   <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                     View Details
+                 </CardContent>
+              </Card>
+
+              <Card>
+                 <CardHeader className="flex flex-row items-center justify-between pb-2">
+                   <CardTitle className="text-lg font-medium">Vendor Categories</CardTitle>
+                   <Button variant="outline" size="sm" className="gap-1">
+                     <Filter className="h-4 w-4" />
+                     <span>Filter</span>
                    </Button>
-                 </div>
-               </div>
-             ))}
-           </CardContent>
-         </Card>
-
-         <Card>
-           <CardHeader className="flex flex-row items-center justify-between pb-2">
-             <CardTitle className="text-lg font-medium">Recent Activities</CardTitle>
-             <Button variant="link" size="sm" className="text-indigo-600 h-auto p-0">
-               View All
-             </Button>
-           </CardHeader>
-           <CardContent className="space-y-4">
-             {recentActivities.map((activity) => {
-                const Icon = activity.icon;
-                return (
-                    <div
-                      key={activity.id}
-                      className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                    >
-                      <div className={`mt-0.5 ${activity.iconColor}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1 text-sm">
-                        <p className="font-medium">
-                          {activity.type === "contract_signed" && "New contract signed with "}
-                          {activity.type === "document_submitted" && "Vendor "}
-                          {activity.type === "contract_expiring" && "Contract with "}
-                          {activity.type === "rating_received" && ""}
-                          <span className="font-semibold">{activity.vendor}</span>
-                          {activity.type === "document_submitted" && " submitted documents for review"}
-                          {activity.type === "contract_expiring" && ` ${activity.details}`}
-                          {activity.type === "rating_received" && ` ${activity.details}`}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{activity.time}</p>
-                      </div>
-                    </div>
-                );
-             })}
-           </CardContent>
-         </Card>
-       </div>
-
-       <Card>
-         <CardHeader className="flex flex-row items-center justify-between pb-2">
-           <CardTitle className="text-lg font-medium">Top Rated Vendors</CardTitle>
-           <Button variant="link" size="sm" className="text-indigo-600 h-auto p-0">
-             View All
-           </Button>
-         </CardHeader>
-         <CardContent>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-             {topRatedVendors.map((vendor) => (
-               <div key={vendor.id} className="bg-white dark:bg-gray-800 border rounded-lg p-4 shadow-sm">
-                 <div className="flex items-center justify-between mb-4">
-                   <Avatar className="h-12 w-12">
-                     <AvatarImage src={vendor.logo} alt={vendor.name} />
-                     <AvatarFallback>{vendor.name.substring(0, 2)}</AvatarFallback>
-                   </Avatar>
-                   <Badge
-                     variant={ vendor.status === "active" ? "secondary" : "outline" }
-                     className="text-[10px] px-1.5 py-0 leading-none"
-                   >
-                     {vendor.status.charAt(0).toUpperCase() + vendor.status.slice(1)}
-                   </Badge>
-                 </div>
-                 <h3 className="font-semibold text-base mb-1">{vendor.name}</h3>
-                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{vendor.category}</p>
-                 <div className="flex items-center mb-3">
-                   <div className="flex">
-                     {[...Array(5)].map((_, i) => (
-                       <Star
-                         key={i}
-                         className={`h-4 w-4 ${
-                           i < Math.floor(vendor.rating) ? "text-yellow-400 fill-yellow-400"
-                           : i < vendor.rating ? "text-yellow-400 fill-yellow-400"
-                           : "text-gray-300"
-                         }`}
+                 </CardHeader>
+                 <CardContent>
+                   <div className="h-[300px] flex items-center justify-center">
+                     {isCategoryChartLoading ? (
+                       <Skeleton className="h-[280px] w-[280px] rounded-full" />
+                     ) : categoryChartError ? (
+                       <div className="text-red-500 text-center px-4">
+                         <AlertTriangle className="inline-block h-5 w-5 mr-1" /> 
+                         Error: {categoryChartError}
+                       </div>
+                     ) : vendorCategoryChartData ? (
+                       <DonutChart
+                         data={vendorCategoryChartData}
+                         options={{
+                           plugins: { legend: { position: 'right' as const } },
+                           maintainAspectRatio: false,
+                         }}
                        />
-                     ))}
+                     ) : (
+                       <div className="text-gray-500">No data available</div>
+                     )}
                    </div>
-                   <span className="ml-2 text-xs font-medium">{vendor.rating.toFixed(1)}</span>
-                 </div>
-                 <div className="flex items-center justify-between text-xs">
-                   <span>
-                     {vendor.contracts} {vendor.contracts === 1 ? "contract" : "contracts"}
-                   </span>
-                   <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                     Details
-                   </Button>
-                 </div>
-               </div>
-             ))}
-           </div>
-         </CardContent>
-       </Card>
+                 </CardContent>
+               </Card>
+            </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               <Card>
+                 <CardHeader>
+                   <CardTitle className="text-lg font-medium">Contract Status</CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                   <div className="h-[250px] flex items-center justify-center">
+                      {isStatusChartLoading ? (
+                       <Skeleton className="h-[230px] w-[230px] rounded-full" />
+                     ) : statusChartError ? (
+                       <div className="text-red-500 text-center px-4">
+                         <AlertTriangle className="inline-block h-5 w-5 mr-1" /> 
+                         Error: {statusChartError}
+                       </div>
+                     ) : contractStatusChartData ? (
+                       <PieChart
+                         data={contractStatusChartData}
+                         options={{
+                           plugins: { legend: { position: 'right' as const } },
+                           maintainAspectRatio: false,
+                         }}
+                       />
+                      ) : (
+                       <div className="text-gray-500">No data available</div>
+                     )}
+                   </div>
+                 </CardContent>
+               </Card>
+
+               <Card>
+                 <CardHeader>
+                   <CardTitle className="text-lg font-medium">Spend by Vendor</CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                   <div className="h-[250px] flex items-center justify-center">
+                     {isSpendChartLoading ? (
+                       <Skeleton className="h-[230px] w-full" /> // Bar chart skeleton
+                     ) : spendChartError ? (
+                       <div className="text-red-500 text-center px-4">
+                         <AlertTriangle className="inline-block h-5 w-5 mr-1" /> 
+                         Error: {spendChartError}
+                       </div>
+                     ) : spendByVendorChartData ? (
+                       <BarChart
+                         data={spendByVendorChartData} // Use state data
+                         options={{
+                           indexAxis: 'y' as const, // Keep horizontal bars
+                           plugins: { legend: { display: false } }, // Hide legend if label is clear
+                           scales: { x: { beginAtZero: true } },
+                           maintainAspectRatio: false,
+                         }}
+                       />
+                     ) : (
+                       <div className="text-gray-500">No data available</div>
+                     )}
+                   </div>
+                 </CardContent>
+               </Card>
+             </div>
+
+             {/* Recent Vendors & Recent Activities */}
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               <RecentVendorsList 
+                 vendors={recentVendorsData}
+                 isLoading={isLoading}
+                 error={error}
+                 limit={ACTIVITY_LIMIT}
+               />
+
+               <RecentActivity
+                 activities={activityFeedData}
+                 isLoading={isLoading}
+                 error={error}
+               />
+             </div>
+
+             {/* Top Scored Vendors */}
+             <div className="grid grid-cols-1 gap-6">
+               <TopScoredVendorsList 
+                 vendors={topScoredVendorsData}
+                 isLoading={isTopVendorsLoading}
+                 error={topVendorsError}
+                 limit={TOP_VENDORS_LIMIT}
+               />
+             </div>
+          </>
+      )}
     </div>
   );
 } 

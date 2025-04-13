@@ -1,8 +1,26 @@
-# VMP Plus: Vendor Management Platform
+# 🏢 VMP Plus: Vendor Management Platform
+
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-latest-646CFF?logo=vite)
+![TypeScript](https://img.shields.io/badge/TypeScript-latest-3178C6?logo=typescript)
+![Supabase](https://img.shields.io/badge/Supabase-latest-3ECF8E?logo=supabase)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-latest-38B2AC?logo=tailwind-css)
 
 A full-stack web application built with React and Supabase to streamline vendor management processes, including onboarding, contract management, performance tracking, and document handling.
 
-## Key Features
+## 📋 Table of Contents
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Setup and Installation](#setup-and-installation)
+- [Running the Application](#running-the-application)
+- [Building for Production](#building-for-production)
+- [Folder Structure](#folder-structure-overview)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact & Support](#contact--support)
+
+## ✨ Key Features
 
 - **Vendor Management**: Create, view, update, and delete vendor profiles
 - **Contract Management**: Track contracts with start dates, end dates, and relevant details
@@ -12,7 +30,7 @@ A full-stack web application built with React and Supabase to streamline vendor 
 - **Dashboard Overview**: Visual analytics of vendor performance and contract status
 - **User Profiles**: Manage user information and preferences
 
-## Technology Stack
+## 🛠️ Technology Stack
 
 ### Frontend
 - React 19
@@ -32,14 +50,14 @@ A full-stack web application built with React and Supabase to streamline vendor 
   - Storage
   - Realtime Subscriptions
 
-## Prerequisites
+## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
 - Node.js (v18.0.0 or higher)
 - npm or yarn
 - A Supabase account and project
 
-## Setup and Installation
+## 🚀 Setup and Installation
 
 1. Clone the repository:
    ```bash
@@ -67,7 +85,7 @@ Before you begin, ensure you have the following installed:
      VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
      ```
 
-## Running the Application
+## 🖥️ Running the Application
 
 1. Start the development server:
    ```bash
@@ -78,7 +96,7 @@ Before you begin, ensure you have the following installed:
 
 2. Open your browser and navigate to `http://localhost:5173`
 
-## Building for Production
+## 📦 Building for Production
 
 To create a production build:
 
@@ -90,22 +108,53 @@ yarn build
 
 The build artifacts will be stored in the `dist/` directory.
 
-## Folder Structure Overview
+## 📁 Folder Structure Overview
 
-- `src/`: Main source code folder
-  - `components/`: Reusable UI components
-    - `ui/`: Generic UI components (from shadcn/ui)
-    - `layout/`: Layout structure components (Navbar, Sidebar)
-    - `vendor/`: Components specific to Vendor features
-    - `contract/`: Components specific to Contract features
-    - `document/`: Components specific to Document features
-    - `auth/`: Components specific to Authentication
-  - `pages/`: Page-level components (routed views)
-  - `context/`: React Context providers for state management
-  - `lib/`: Library code and utilities
-    - `api/`: Functions for interacting with Supabase backend
-    - `supabase.ts`: Supabase client configuration
-  - `hooks/`: Custom React hooks
-  - `types/`: TypeScript type definitions
-  - `schemas/`: Zod validation schemas
-  - `router.tsx`: Application routing configuration
+```
+src/
+├── components/       # Reusable UI components
+│   ├── ui/           # Generic UI components (from shadcn/ui)
+│   ├── layout/       # Layout structure components (Navbar, Sidebar)
+│   ├── vendor/       # Components specific to Vendor features
+│   ├── contract/     # Components specific to Contract features
+│   ├── document/     # Components specific to Document features
+│   └── auth/         # Components specific to Authentication
+├── pages/            # Page-level components (routed views)
+├── context/          # React Context providers for state management
+├── lib/              # Library code and utilities
+│   ├── api/          # Functions for interacting with Supabase backend
+│   └── supabase.ts   # Supabase client configuration
+├── hooks/            # Custom React hooks
+├── types/            # TypeScript type definitions
+├── schemas/          # Zod validation schemas
+└── router.tsx        # Application routing configuration
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can contribute to the project:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature-name`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some feature'`)
+5. Push to the branch (`git push origin feature/your-feature-name`)
+6. Open a Pull Request
+
+Please ensure your code follows the project's style guidelines and includes appropriate tests.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Contact & Support
+
+If you have any questions or need support, please reach out:
+
+- **Project Maintainer**: [Your Name](mailto:your.email@example.com)
+- **Issue Tracker**: [GitHub Issues](https://github.com/yourusername/vmpplus-hdip-final-project/issues)
+- **Documentation**: [Wiki](https://github.com/yourusername/vmpplus-hdip-final-project/wiki)
+
+---
+
+Made with ❤️ for the Higher Diploma in Science in Computer Science at [Your Institution]

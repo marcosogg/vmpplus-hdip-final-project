@@ -14,9 +14,18 @@ import { FileIcon, TrashIcon, DownloadIcon, PlusIcon, SearchIcon, FilterIcon } f
 import { Document, getDocumentUrl, deleteDocument } from '@/lib/api/documents';
 import { supabase } from '@/lib/supabase';
 import { DocumentUpload } from '@/components/document/document-upload';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+// Extended document type with vendor details
+interface DocumentWithVendor extends Document {
+  vendor_details?: {
+    name: string;
+    logo_url: string | null;
+  };
+}
 
 export function DocumentListPage() {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<DocumentWithVendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +44,7 @@ export function DocumentListPage() {
     setError(null);
     
     try {
-      // Get all documents from all entities
+      // Step A: Get all documents from all entities
       const { data, error } = await supabase
         .from('documents')
         .select('*')
@@ -45,7 +54,44 @@ export function DocumentListPage() {
         throw error;
       }
       
-      setDocuments(data as Document[]);
+      const documentsData = data as DocumentWithVendor[];
+      
+      // Step B: Identify unique vendor IDs
+      const vendorIds = documentsData
+        .filter(doc => doc.entity_type === 'vendor')
+        .map(doc => doc.entity_id)
+        .filter((id, index, self) => self.indexOf(id) === index); // Get unique IDs
+      
+      // Step C: If there are vendor IDs, fetch vendor details
+      if (vendorIds.length > 0) {
+        const { data: vendorData, error: vendorError } = await supabase
+          .from('vendors')
+          .select('id, name, logo_url')
+          .in('id', vendorIds);
+          
+        if (vendorError) throw vendorError;
+        
+        // Step D: Combine document data with vendor details
+        const documentsWithVendors = documentsData.map(doc => {
+          if (doc.entity_type === 'vendor') {
+            const vendor = vendorData?.find(v => v.id === doc.entity_id);
+            if (vendor) {
+              return {
+                ...doc,
+                vendor_details: {
+                  name: vendor.name,
+                  logo_url: vendor.logo_url
+                }
+              };
+            }
+          }
+          return doc;
+        });
+        
+        setDocuments(documentsWithVendors);
+      } else {
+        setDocuments(documentsData);
+      }
     } catch (err) {
       console.error('Error loading documents:', err);
       setError('An unexpected error occurred while loading documents');
@@ -170,8 +216,11 @@ export function DocumentListPage() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const getEntityName = (document: Document) => {
+  const getEntityName = (document: DocumentWithVendor) => {
     if (document.entity_type === 'vendor') {
+      if (document.vendor_details) {
+        return document.vendor_details.name;
+      }
       const vendor = vendors.find(v => v.id === document.entity_id);
       return vendor ? vendor.name : document.entity_id;
     } else if (document.entity_type === 'contract') {
@@ -294,8 +343,7 @@ export function DocumentListPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>Vendor</TableHead>
                   <TableHead>Size</TableHead>
                   <TableHead>Uploaded</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
@@ -311,10 +359,27 @@ export function DocumentListPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="capitalize">{doc.entity_type}</span>
-                      : {getEntityName(doc)}
+                      {doc.entity_type === 'vendor' && (
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage 
+                              src={doc.vendor_details?.logo_url || `https://logo.clearbit.com/${getEntityName(doc).toLowerCase().replace(/\s+/g, '')}.com`} 
+                              alt={getEntityName(doc)} 
+                            />
+                            <AvatarFallback>{getEntityName(doc).substring(0, 2)}</AvatarFallback>
+                          </Avatar>
+                          <span>{getEntityName(doc)}</span>
+                        </div>
+                      )}
+                      {doc.entity_type === 'contract' && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs text-gray-500">C</span>
+                          </div>
+                          <span>{getEntityName(doc)}</span>
+                        </div>
+                      )}
                     </TableCell>
-                    <TableCell>{doc.file_type || 'Unknown'}</TableCell>
                     <TableCell>{formatFileSize(doc.file_size)}</TableCell>
                     <TableCell>{new Date(doc.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>

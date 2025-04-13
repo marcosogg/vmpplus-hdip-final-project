@@ -9,6 +9,8 @@ export const vendorSchema = z.object({
     errorMap: () => ({ message: 'Please select a valid status' }),
   }),
   notes: z.string().optional().or(z.literal('')),
+  score: z.number().min(0).max(5).optional().nullable(),
+  category: z.string().optional().or(z.literal('')),
 });
 
 // Type for form data derived from the schema

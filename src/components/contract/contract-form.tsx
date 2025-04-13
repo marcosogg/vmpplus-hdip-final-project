@@ -52,7 +52,8 @@ const defaultValues: ContractFormData = {
   start_date: formatDateForInput(new Date().toISOString()), // Today's date
   end_date: formatDateForInput(new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()), // One year from today
   value: '', // Represent as string for input
-  status: 'draft'
+  status: 'draft',
+  is_urgent: false
 };
 
 export function ContractForm({ initialData, contractId, onSuccess }: ContractFormProps) {
@@ -249,10 +250,8 @@ export function ContractForm({ initialData, contractId, onSuccess }: ContractFor
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
                     <Input 
                       {...field} 
-                      type="number" 
-                      step="0.01" 
-                      min="0" 
-                      placeholder="0.00"
+                      type="text" 
+                      placeholder="0.00" 
                       className="pl-8"
                     />
                   </div>
@@ -282,6 +281,31 @@ export function ContractForm({ initialData, contractId, onSuccess }: ContractFor
                     <SelectItem value="terminated">Terminated</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {/* Urgent field */}
+          <FormField
+            control={control}
+            name="is_urgent"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Urgent 🚨</FormLabel>
+                  <FormDescription>
+                    Mark this contract as urgent if it requires immediate attention
+                  </FormDescription>
+                </div>
                 <FormMessage />
               </FormItem>
             )}

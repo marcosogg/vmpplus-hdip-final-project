@@ -12,7 +12,7 @@ export async function getContracts(): Promise<ApiResponse<Contract[]>> {
   return handleApiError(
     supabase
       .from('contracts')
-      .select('*, vendors(name)')
+      .select('*, vendors(name, logo_url)')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (error) throw error;
@@ -41,7 +41,7 @@ export async function getContractById(id: string): Promise<ApiResponse<Contract>
   return handleApiError(
     supabase
       .from('contracts')
-      .select('*, vendors(name)')
+      .select('*, vendors(name, logo_url)')
       .eq('id', id)
       .single()
       .then(({ data, error }) => {
@@ -142,6 +142,20 @@ export async function getExpiringContractCount(): Promise<ApiResponse<number>> {
       .select('*', { count: 'exact', head: true })
       .lte('end_date', thirtyDaysFromNow.toISOString())
       .gt('end_date', new Date().toISOString())
+      .then(({ count, error }) => {
+        if (error) throw error;
+        return count || 0;
+      })
+  );
+}
+
+// Get count of urgent contracts
+export async function getUrgentContractCount(): Promise<ApiResponse<number>> {
+  return handleApiError(
+    supabase
+      .from('contracts')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_urgent', true)
       .then(({ count, error }) => {
         if (error) throw error;
         return count || 0;

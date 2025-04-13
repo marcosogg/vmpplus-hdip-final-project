@@ -225,7 +225,16 @@ export function ContractListPage() {
                     {/* Access vendors.name from the joined table */}
                     {contract.vendors?.name || 'Unknown Vendor'}
                   </TableCell>
-                  <TableCell>{renderStatusBadge(contract.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {renderStatusBadge(contract.status)}
+                      {contract.is_urgent && (
+                        <span className="text-base" title="Urgent">
+                          🚨
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{formatDate(contract.start_date)}</TableCell>
                   <TableCell>{formatDate(contract.end_date)}</TableCell>
                   <TableCell>${contract.value.toLocaleString()}</TableCell>

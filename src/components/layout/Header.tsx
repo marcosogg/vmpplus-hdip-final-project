@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { Search, Bell, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Search, ChevronDown } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -15,13 +15,13 @@ import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/hooks/use-auth';
-import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 
 const Header: React.FC = () => {
   const { profile, userRole, isProfileLoading } = useUserProfile();
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Get initials for avatar fallback
   const getInitials = (name: string | null, email: string) => {
@@ -42,6 +42,20 @@ const Header: React.FC = () => {
     // Default to male avatars for simplicity since we don't store gender in profile
     return 'https://xsgames.co/randomusers/avatar.php?g=male';
   };
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent any default form submission
+      const trimmedSearchTerm = searchTerm.trim();
+      if (trimmedSearchTerm) {
+        // Navigate to vendor list with search query parameter
+        navigate(`/app/vendors?search=${encodeURIComponent(trimmedSearchTerm)}`);
+      } else {
+        // Navigate to the plain vendor list if search is empty
+        navigate('/app/vendors');
+      }
+    }
+  };
   
   return (
     <header className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
@@ -54,16 +68,13 @@ const Header: React.FC = () => {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input
               type="search"
-              placeholder="Search..."
+              placeholder="Search vendors..."
               className="w-64 pl-8 rounded-md border border-gray-300 dark:border-gray-600"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
             />
           </div>
-          <Button variant="ghost" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
-              3
-            </span>
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-2 cursor-pointer">
@@ -95,7 +106,6 @@ const Header: React.FC = () => {
           </DropdownMenu>
         </div>
       </div>
-
     </header>
   );
 };

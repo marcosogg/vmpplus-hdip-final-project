@@ -4,6 +4,7 @@ import { getVendorById, Vendor } from '@/lib/api/vendors';
 import { VendorForm } from '@/components/vendor/vendor-form';
 import { PageHeader } from '@/components/layout/page-header';
 import { useToast } from '@/hooks/use-toast';
+import { VendorFormData } from '@/schemas/vendor-schema';
 
 export function VendorEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +48,10 @@ export function VendorEditPage() {
           return;
         }
         
-        setVendor(data);
+        setVendor({
+          ...data,
+          status: data.status as VendorFormData['status']
+        });
       } catch (err) {
         console.error(err);
         setError('An unexpected error occurred');
@@ -103,7 +107,7 @@ export function VendorEditPage() {
       
       <div className="mt-6">
         <VendorForm
-          initialData={vendor}
+          initialData={vendor as unknown as VendorFormData}
           vendorId={vendor.id}
         />
       </div>

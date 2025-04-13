@@ -37,7 +37,7 @@ export function MobileNav({ className }: MobileNavProps) {
           <span className="ml-2 font-bold">VMP PLUS</span>
         </div>
         <div className="p-4">
-          <SidebarNav isMobile onNavClick={() => setIsOpen(false)} />
+          <SidebarNav />
         </div>
       </SheetContent>
     </Sheet>

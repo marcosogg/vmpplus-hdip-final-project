@@ -14,7 +14,7 @@ export const contractSchema = z.object({
   status: z.enum(['draft', 'active', 'completed', 'terminated'], {
     errorMap: () => ({ message: 'Please select a valid status' }),
   }),
-  is_urgent: z.boolean().default(false),
+  is_urgent: z.boolean(),
 }).refine(data => {
   // Check if both dates are valid before comparing
   if (data.start_date && data.end_date && /^\d{4}-\d{2}-\d{2}$/.test(data.start_date) && /^\d{4}-\d{2}-\d{2}$/.test(data.end_date)) {

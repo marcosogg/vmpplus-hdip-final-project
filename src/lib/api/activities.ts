@@ -68,7 +68,7 @@ export async function getRecentActivities(limit: number = 5): Promise<ApiRespons
           activities.push({
             id: `contract-${contract.id}`,
             type: 'contract_signed',
-            vendor: contract.vendors?.name || 'Unknown Vendor',
+            vendor: contract.vendors?.[0]?.name || 'Unknown Vendor',
             time: formatTimeAgo(new Date(contract.created_at), now),
             icon: CheckCircle,
             iconColor: 'text-green-500',
@@ -84,7 +84,7 @@ export async function getRecentActivities(limit: number = 5): Promise<ApiRespons
           activities.push({
             id: `expiring-${contract.id}`,
             type: 'contract_expiring',
-            vendor: contract.vendors?.name || 'Unknown Vendor',
+            vendor: contract.vendors?.[0]?.name || 'Unknown Vendor',
             time: formatTimeAgo(now, now), // Current time
             icon: AlertTriangle,
             iconColor: 'text-amber-500',

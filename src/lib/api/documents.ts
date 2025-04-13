@@ -59,47 +59,44 @@ export async function getDocumentsByEntity(
   entityType: 'vendor' | 'contract',
   entityId: string
 ): Promise<ApiResponse<Document[]>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('documents')
       .select('*')
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Document[];
-      })
-  );
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data as Document[];
+  });
 }
 
 // Get document by ID
 export async function getDocumentById(id: string): Promise<ApiResponse<Document>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('documents')
       .select('*')
       .eq('id', id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Document;
-      })
-  );
+      .single();
+    
+    if (error) throw error;
+    return data as Document;
+  });
 }
 
 // Get document download URL
 export async function getDocumentUrl(document: Document): Promise<ApiResponse<string>> {
-  return handleApiError(
-    supabase.storage
+  return handleApiError(async () => {
+    const { data, error } = await supabase.storage
       .from('documents')
-      .createSignedUrl(document.file_path, 60)
-      .then(({ data, error }) => {
-        if (error) throw error;
-        if (!data?.signedUrl) throw new Error('Failed to generate download URL');
-        return data.signedUrl;
-      })
-  );
+      .createSignedUrl(document.file_path, 60);
+    
+    if (error) throw error;
+    if (!data?.signedUrl) throw new Error('Failed to generate download URL');
+    return data.signedUrl;
+  });
 }
 
 // Delete a document
@@ -136,13 +133,12 @@ export async function deleteDocument(id: string): Promise<ApiResponse<null>> {
 
 // Get total count of documents
 export async function getDocumentCount(): Promise<ApiResponse<number>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('documents')
-      .select('*', { count: 'exact', head: true })
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) throw error;
+    return count || 0;
+  });
 } 

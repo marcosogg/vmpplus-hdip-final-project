@@ -88,59 +88,55 @@ export async function updateVendor(
   id: string,
   updates: VendorUpdate
 ): Promise<ApiResponse<Vendor>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('vendors')
       .update(updates)
       .eq('id', id)
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Vendor;
-      })
-  );
+      .single();
+    
+    if (error) throw error;
+    return data as Vendor;
+  });
 }
 
 // Delete a vendor
 export async function deleteVendor(id: string): Promise<ApiResponse<null>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { error } = await supabase
       .from('vendors')
       .delete()
-      .eq('id', id)
-      .then(({ error }) => {
-        if (error) throw error;
-        return null;
-      })
-  );
+      .eq('id', id);
+    
+    if (error) throw error;
+    return null;
+  });
 }
 
 // Get total count of vendors
 export async function getVendorCount(): Promise<ApiResponse<number>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('vendors')
-      .select('*', { count: 'exact', head: true })
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) throw error;
+    return count || 0;
+  });
 }
 
 // Get count of active vendors
 export async function getActiveVendorCount(): Promise<ApiResponse<number>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('vendors')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'active')
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .eq('status', 'active');
+    
+    if (error) throw error;
+    return count || 0;
+  });
 }
 
 // Get average vendor rating

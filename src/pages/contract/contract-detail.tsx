@@ -136,11 +136,13 @@ export function ContractDetailPage() {
         return;
       }
       
-      setContract(data);
-      toast({
-        title: "Success",
-        description: `Contract ${data.is_urgent ? 'marked as urgent' : 'urgency removed'}`,
-      });
+      if (data) {
+        setContract(data);
+        toast({
+          title: "Success",
+          description: `Contract ${data.is_urgent ? 'marked as urgent' : 'urgency removed'}`,
+        });
+      }
     } catch (err) {
       console.error('Error toggling urgency:', err);
       toast({

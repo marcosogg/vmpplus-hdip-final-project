@@ -81,7 +81,7 @@ export async function getRecentVendorScores(limit: number = 10): Promise<ApiResp
       datasets: [
         {
           label: "Recent Vendor Scores", // Updated label
-          data: dataPoints,
+          data: dataPoints.filter(p => p !== null) as number[],
           borderColor: "rgb(234, 88, 12)", // Keep orange color
           backgroundColor: "rgba(234, 88, 12, 0.1)",
           tension: 0.1, // Lower tension for potentially less smooth data

@@ -62,8 +62,8 @@ export async function updateLastLogin(userId: string): Promise<ApiResponse<Profi
 
 // Create a profile for a new user (called after signup)
 export async function createProfile(userId: string, email: string): Promise<ApiResponse<Profile>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('profiles')
       .insert({
         id: userId,
@@ -71,10 +71,9 @@ export async function createProfile(userId: string, email: string): Promise<ApiR
         role_id: '60b1896f-ba73-45e1-878d-e49badca6f78' // Buyer role ID
       })
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Profile;
-      })
-  );
+      .single();
+    
+    if (error) throw error;
+    return data as Profile;
+  });
 } 

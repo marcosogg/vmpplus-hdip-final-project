@@ -9,46 +9,43 @@ export type ContractUpdate = Database['public']['Tables']['contracts']['Update']
 
 // Get all contracts
 export async function getContracts(): Promise<ApiResponse<Contract[]>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('contracts')
       .select('*, vendors(name, logo_url)')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as unknown as Contract[];
-      })
-  );
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data as unknown as Contract[];
+  });
 }
 
 // Get contracts for a specific vendor
 export async function getContractsByVendorId(vendorId: string): Promise<ApiResponse<Contract[]>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('contracts')
       .select('*')
       .eq('vendor_id', vendorId)
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Contract[];
-      })
-  );
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data as Contract[];
+  });
 }
 
 // Get a single contract by ID
 export async function getContractById(id: string): Promise<ApiResponse<Contract>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('contracts')
       .select('*, vendors(name, logo_url)')
       .eq('id', id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as unknown as Contract;
-      })
-  );
+      .single();
+    
+    if (error) throw error;
+    return data as unknown as Contract;
+  });
 }
 
 // Create a new contract
@@ -90,45 +87,42 @@ export async function updateContract(
   id: string,
   updates: ContractUpdate
 ): Promise<ApiResponse<Contract>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('contracts')
       .update(updates)
       .eq('id', id)
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Contract;
-      })
-  );
+      .single();
+    
+    if (error) throw error;
+    return data as Contract;
+  });
 }
 
 // Delete a contract
 export async function deleteContract(id: string): Promise<ApiResponse<null>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { error } = await supabase
       .from('contracts')
       .delete()
-      .eq('id', id)
-      .then(({ error }) => {
-        if (error) throw error;
-        return null;
-      })
-  );
+      .eq('id', id);
+    
+    if (error) throw error;
+    return null;
+  });
 }
 
 // Get total count of contracts
 export async function getContractCount(): Promise<ApiResponse<number>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('contracts')
-      .select('*', { count: 'exact', head: true })
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) throw error;
+    return count || 0;
+  });
 }
 
 // Get count of contracts expiring soon (within 30 days)
@@ -136,29 +130,27 @@ export async function getExpiringContractCount(): Promise<ApiResponse<number>> {
   const thirtyDaysFromNow = new Date();
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('contracts')
       .select('*', { count: 'exact', head: true })
       .lte('end_date', thirtyDaysFromNow.toISOString())
-      .gt('end_date', new Date().toISOString())
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .gt('end_date', new Date().toISOString());
+    
+    if (error) throw error;
+    return count || 0;
+  });
 }
 
 // Get count of urgent contracts
 export async function getUrgentContractCount(): Promise<ApiResponse<number>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { count, error } = await supabase
       .from('contracts')
       .select('*', { count: 'exact', head: true })
-      .eq('is_urgent', true)
-      .then(({ count, error }) => {
-        if (error) throw error;
-        return count || 0;
-      })
-  );
+      .eq('is_urgent', true);
+    
+    if (error) throw error;
+    return count || 0;
+  });
 } 

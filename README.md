@@ -151,10 +151,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you have any questions or need support, please reach out:
 
-- **Project Maintainer**: [Your Name](mailto:your.email@example.com)
-- **Issue Tracker**: [GitHub Issues](https://github.com/yourusername/vmpplus-hdip-final-project/issues)
-- **Documentation**: [Wiki](https://github.com/yourusername/vmpplus-hdip-final-project/wiki)
+- **Project Maintainer**: [Marcos Gomes](mailto:marcosogomes@gmail.com)
+- **Issue Tracker**: [GitHub Issues](https://github.com/marcosogg/vmpplus-hdip-final-project/issues)
+- **Documentation**: [Wiki](https://github.com/marcosogg/vmpplus-hdip-final-project/wiki)
 
 ---
 
-Made with ❤️ for the Higher Diploma in Science in Computer Science at [Your Institution]
+Made with ❤️ for the Higher Diploma in Science in Computer Science at [SETU]

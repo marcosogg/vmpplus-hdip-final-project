@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getContractById, deleteContract, Contract } from '@/lib/api/contracts';
+import { getContractById, deleteContract, updateContract, Contract } from '@/lib/api/contracts';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { Edit, MoreVertical, Trash2, FileText } from 'lucide-react';
+import { Edit, MoreVertical, Trash2, FileText, AlertTriangle } from 'lucide-react';
 import { DocumentList } from '@/components/document/document-list';
 import { DocumentUpload } from '@/components/document/document-upload';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -119,6 +119,38 @@ export function ContractDetailPage() {
     }
   };
 
+  const handleToggleUrgency = async () => {
+    if (!id || !contract) return;
+    
+    try {
+      const { data, error } = await updateContract(id, { 
+        is_urgent: !contract.is_urgent 
+      });
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || 'Failed to update contract urgency',
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setContract(data);
+      toast({
+        title: "Success",
+        description: `Contract ${data.is_urgent ? 'marked as urgent' : 'urgency removed'}`,
+      });
+    } catch (err) {
+      console.error('Error toggling urgency:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDocumentUploadSuccess = () => {
     setShowUploadDocumentDialog(false);
     toast({
@@ -196,6 +228,11 @@ export function ContractDetailPage() {
               </Link>
             )}
             <span className="ml-3">{renderStatusBadge(contract.status)}</span>
+            {contract.is_urgent && (
+              <span className="ml-3 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                Urgent
+              </span>
+            )}
           </div>
         }
         actions={
@@ -212,13 +249,28 @@ export function ContractDetailPage() {
                 Edit Contract
               </DropdownMenuItem>
               {isAdmin && (
-                <DropdownMenuItem 
-                  onClick={handleDeleteContract}
-                  className="text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Contract
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem onClick={handleToggleUrgency}>
+                    {contract.is_urgent ? (
+                      <>
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                        Remove Urgency
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                        Mark as Urgent
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleDeleteContract}
+                    className="text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Contract
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -278,6 +330,15 @@ export function ContractDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {contract.vendors?.logo_url && (
+                <div className="flex justify-center">
+                  <img
+                    src={contract.vendors.logo_url}
+                    alt={`${contract.vendors.name} logo`}
+                    className="h-24 w-24 object-contain rounded-lg"
+                  />
+                </div>
+              )}
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Vendor</h3>
                 <p className="mt-1 font-medium">

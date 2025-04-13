@@ -39,7 +39,8 @@ const defaultValues: VendorFormData = {
   phone: '',
   address: '',
   status: 'pending',
-  notes: ''
+  notes: '',
+  score: null
 };
 
 export function VendorForm({ initialData, vendorId, onSuccess }: VendorFormProps) {
@@ -207,6 +208,47 @@ export function VendorForm({ initialData, vendorId, onSuccess }: VendorFormProps
                     <SelectItem value="pending">Pending</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {/* Category field */}
+          <FormField
+            control={control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter vendor category" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {/* Rating/Score field */}
+          <FormField
+            control={control}
+            name="score"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rating (0-5)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="0" 
+                    max="5" 
+                    step="0.1" 
+                    placeholder="Enter rating from 0 to 5"
+                    value={field.value === null ? '' : field.value}
+                    onChange={e => {
+                      const value = e.target.value === '' ? null : Number(e.target.value);
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

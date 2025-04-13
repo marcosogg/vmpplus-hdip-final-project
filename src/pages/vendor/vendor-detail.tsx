@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getVendorById, deleteVendor, Vendor } from '@/lib/api/vendors';
+import { getVendorById, deleteVendor, updateVendor, Vendor } from '@/lib/api/vendors';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { EditIcon, Trash2Icon, FileIcon } from 'lucide-react';
+import { EditIcon, Trash2Icon, FileIcon, CheckCircle } from 'lucide-react';
 import { DocumentList } from '@/components/document/document-list';
 import { DocumentUpload } from '@/components/document/document-upload';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -123,6 +123,38 @@ export function VendorDetailPage() {
     });
   };
 
+  const handleApprove = async () => {
+    if (!id || !vendor) return;
+    
+    try {
+      const { data, error } = await updateVendor(id, { 
+        status: 'active' 
+      });
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || 'Failed to approve vendor',
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setVendor(data);
+      toast({
+        title: "Success",
+        description: "Vendor approved successfully",
+      });
+    } catch (err) {
+      console.error('Error approving vendor:', err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), 'MMMM dd, yyyy');
@@ -144,6 +176,58 @@ export function VendorDetailPage() {
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusClass}`}>
         {status}
       </span>
+    );
+  };
+
+  // Render the rating stars
+  const renderRating = (rating: number | null | undefined) => {
+    if (rating === null || rating === undefined) return 'No rating';
+    
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => {
+          if (i < fullStars) {
+            return (
+              <svg 
+                key={i} 
+                className="h-5 w-5 text-yellow-400 fill-yellow-400" 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+            );
+          } else if (i === fullStars && hasHalfStar) {
+            return (
+              <svg 
+                key={i} 
+                className="h-5 w-5 text-yellow-400 fill-yellow-400" 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+            );
+          } else {
+            return (
+              <svg 
+                key={i} 
+                className="h-5 w-5 text-gray-300" 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+            );
+          }
+        })}
+        <span className="ml-2 text-sm font-medium text-gray-700">
+          {rating.toFixed(1)}
+        </span>
+      </div>
     );
   };
 
@@ -184,6 +268,15 @@ export function VendorDetailPage() {
         description="Vendor details and related information"
         actions={
           <div className="flex space-x-2">
+            {isAdmin && vendor.status === 'pending' && (
+              <Button
+                variant="default"
+                onClick={handleApprove}
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Approve Vendor
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => navigate(`/app/vendors/${vendor.id}/edit`)}
@@ -234,7 +327,23 @@ export function VendorDetailPage() {
         {/* Vendor Details Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Vendor Information</CardTitle>
+            <div className="flex items-center space-x-4">
+              {vendor.logo_url ? (
+                <img 
+                  src={vendor.logo_url} 
+                  alt={`${vendor.name} logo`}
+                  className="h-16 w-16 rounded-full object-cover"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400 text-xl font-medium">{vendor.name.charAt(0)}</span>
+                </div>
+              )}
+              <div>
+                <CardTitle>{vendor.name}</CardTitle>
+                <p className="text-sm text-gray-500 mt-1">Vendor Details</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,6 +354,10 @@ export function VendorDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Status</h3>
                 <p className="mt-1">{renderStatusBadge(vendor.status)}</p>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Rating</h3>
+                <div className="mt-1">{renderRating(vendor.rating)}</div>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Email</h3>

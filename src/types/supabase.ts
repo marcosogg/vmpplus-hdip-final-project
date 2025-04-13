@@ -51,6 +51,9 @@ export interface Database {
           created_by: string | null
           created_at: string
           updated_at: string
+          logo_url: string | null
+          category: string | null
+          score: number | null
         }
         Insert: {
           id?: string
@@ -63,6 +66,9 @@ export interface Database {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          logo_url?: string | null
+          category?: string | null
+          score?: number | null
         }
         Update: {
           id?: string
@@ -75,6 +81,9 @@ export interface Database {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          logo_url?: string | null
+          category?: string | null
+          score?: number | null
         }
       }
       contracts: {
@@ -90,6 +99,11 @@ export interface Database {
           created_by: string | null
           created_at: string
           updated_at: string
+          is_urgent: boolean
+          vendors?: {
+            name: string
+            logo_url: string | null
+          }
         }
         Insert: {
           id?: string
@@ -103,6 +117,7 @@ export interface Database {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          is_urgent?: boolean
         }
         Update: {
           id?: string
@@ -116,6 +131,7 @@ export interface Database {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          is_urgent?: boolean
         }
       }
       documents: {

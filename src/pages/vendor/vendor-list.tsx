@@ -184,6 +184,29 @@ export function VendorListPage() {
     );
   };
 
+  // Render the rating stars
+  const renderRating = (rating: number | null) => {
+    if (rating === null) return '-';
+    
+    const fullStars = Math.floor(rating);
+    
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <svg 
+            key={i} 
+            className={`h-4 w-4 ${i < fullStars ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+        ))}
+        <span className="ml-1 text-sm text-gray-600">{rating.toFixed(1)}</span>
+      </div>
+    );
+  };
+
   // Updated navigate paths
   const navigateToCreate = () => navigate('/app/vendors/new');
   const navigateToDetails = (id: string) => navigate(`/app/vendors/${id}`);
@@ -234,9 +257,12 @@ export function VendorListPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Logo</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Rating</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
@@ -244,6 +270,19 @@ export function VendorListPage() {
             <TableBody>
               {vendors.map((vendor) => (
                 <TableRow key={vendor.id}>
+                  <TableCell>
+                    {vendor.logo_url ? (
+                      <img 
+                        src={vendor.logo_url} 
+                        alt={`${vendor.name} logo`}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">{vendor.name.charAt(0)}</span>
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">
                     <Link to={`/app/vendors/${vendor.id}`} className="hover:underline text-primary">
                       {vendor.name}
@@ -251,6 +290,8 @@ export function VendorListPage() {
                   </TableCell>
                   <TableCell>{vendor.email || '-'}</TableCell>
                   <TableCell>{renderStatusBadge(vendor.status)}</TableCell>
+                  <TableCell>{vendor.category || '-'}</TableCell>
+                  <TableCell>{renderRating(vendor.rating)}</TableCell>
                   <TableCell>{formatDate(vendor.created_at)}</TableCell>
                   <TableCell>
                     <DropdownMenu>

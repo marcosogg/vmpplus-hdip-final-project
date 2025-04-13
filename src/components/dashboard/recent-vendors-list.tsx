@@ -56,8 +56,8 @@ export function RecentVendorsList() {
                   className={cn(
                     "text-xs px-2.5 py-0.5 rounded-full font-medium border-0",
                     vendor.status === 'Active'
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-yellow-50 text-yellow-700 border border-yellow-200"
                   )}
                 >
                   {vendor.status}

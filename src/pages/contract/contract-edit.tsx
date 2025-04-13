@@ -23,7 +23,7 @@ export function ContractEditPage() {
     async function loadContract() {
       setIsLoading(true);
       try {
-        const { data, error } = await getContractById(id);
+        const { data, error } = await getContractById(id as string);
 
         if (error) {
           setError(error.message);

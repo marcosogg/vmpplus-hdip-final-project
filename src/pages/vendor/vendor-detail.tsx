@@ -47,7 +47,7 @@ export function VendorDetailPage() {
       setError(null);
       
       try {
-        const { data, error } = await getVendorById(id);
+        const { data, error } = await getVendorById(id as string);
         
         if (error) {
           setError(error.message);

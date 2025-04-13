@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { Vendor, getVendorCount, getActiveVendorCount, getRecentVendors, getVendorCountByCategory, getTopScoredVendors, getVendors } from '@/lib/api/vendors';
 import { Contract, getContractCount, getExpiringContractCount, getRecentContracts, getContractCountByStatus, getTotalContractValueByVendor } from '@/lib/api/contracts';
 import { getDocumentCount } from '@/lib/api/documents';
+import { getRecentActivities, ActivityLog } from '@/lib/api/activity';
 import { ApiResponse } from '@/types/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -61,9 +62,6 @@ interface ChartData {
   }[];
 }
 
-// Define a type for the combined activity feed items
-type ActivityFeedItem = (Vendor & { type: 'vendor' }) | (Contract & { type: 'contract' });
-
 export function DashboardPage() {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
@@ -106,7 +104,7 @@ export function DashboardPage() {
     activeVendors: 0
   });
   const [recentVendorsData, setRecentVendorsData] = useState<Vendor[] | null>(null);
-  const [activityFeedData, setActivityFeedData] = useState<ActivityFeedItem[] | null>(null);
+  const [activityFeedData, setActivityFeedData] = useState<ActivityLog[] | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -137,7 +135,7 @@ export function DashboardPage() {
           getDocumentCount(),
           getActiveVendorCount(),
           getRecentVendors(ACTIVITY_LIMIT),
-          getRecentContracts(ACTIVITY_LIMIT),
+          getRecentActivities(ACTIVITY_LIMIT),
           getVendorCountByCategory(),
           getContractCountByStatus(),
           getTotalContractValueByVendor(SPEND_CHART_LIMIT),
@@ -165,7 +163,7 @@ export function DashboardPage() {
           documentsResponse,
           activeVendorsResponse,
           recentVendorsResponse,
-          recentContractsResponse,
+          activitiesResponse,
           categoryCountResponse,
           statusCountResponse,
           spendByVendorResponse,
@@ -183,18 +181,8 @@ export function DashboardPage() {
         const recentVendors = (recentVendorsResponse as ApiResponse<Vendor[]>).data ?? [];
         setRecentVendorsData(recentVendors);
 
-        const recentContracts = (recentContractsResponse as ApiResponse<Contract[]>).data ?? [];
-        const typedVendors = recentVendors.map(v => ({ ...v, type: 'vendor' as const }));
-        const typedContracts = recentContracts.map(c => ({ ...c, type: 'contract' as const }));
-        const combinedActivities = [...typedVendors, ...typedContracts];
-        combinedActivities.sort((a, b) => {
-            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-            return dateB - dateA;
-        });
-        // Slice the combined and sorted activities to get only the 4 most recent
-        const finalActivities = combinedActivities.slice(0, ACTIVITY_LIMIT);
-        setActivityFeedData(finalActivities);
+        const activities = (activitiesResponse as ApiResponse<ActivityLog[]>).data ?? [];
+        setActivityFeedData(activities);
 
         setIsCategoryChartLoading(false);
         const categoryResultError = categoryCountResponse.error;

@@ -4,13 +4,10 @@ import { FileText, Users, AlertTriangle, CheckCircle, Star } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Vendor } from '@/lib/api/vendors';
-import { Contract } from '@/lib/api/contracts';
-
-type ActivityFeedItem = (Vendor & { type: 'vendor' }) | (Contract & { type: 'contract' });
+import { ActivityLog } from '@/lib/api/activity';
 
 interface RecentActivityProps {
-  activities: ActivityFeedItem[] | null;
+  activities: ActivityLog[] | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -33,7 +30,6 @@ const formatTimestamp = (timestamp: string | null | undefined): string => {
 };
 
 export function RecentActivity({ activities, isLoading, error }: RecentActivityProps) {
-
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -64,62 +60,57 @@ export function RecentActivity({ activities, isLoading, error }: RecentActivityP
 
     return (
       <div className="space-y-4">
-        {activities.map((activity, index) => {
+        {activities.map((activity) => {
           const timestamp = formatTimestamp(activity.created_at);
           let icon;
           let description: React.ReactNode;
 
-          if (activity.type === 'vendor') {
-            // New vendor added
-            icon = <Users className="h-5 w-5 text-blue-500" />;
-            description = (
-              <>
-                New vendor added: <span className="font-medium">{activity.name || 'Unknown Vendor'}</span>
-              </>
-            );
-          } else if (activity.type === 'contract') {
-            // For contracts, determine if it's a new contract, expiring, or document submitted
-            if (activity.status === 'active' || activity.status === 'pending') {
-              // New contract signed
+          // Determine icon and description based on activity type
+          switch (activity.activity_type) {
+            case 'vendor_created':
+            case 'vendor_updated':
+            case 'vendor_deleted':
+              icon = <Users className="h-5 w-5 text-blue-500" />;
+              description = activity.description;
+              break;
+            case 'vendor_rated':
+              icon = <Star className="h-5 w-5 text-purple-500" />;
+              description = activity.description;
+              break;
+            case 'contract_created':
+            case 'contract_updated':
+            case 'contract_deleted':
               icon = <CheckCircle className="h-5 w-5 text-green-500" />;
-              description = (
-                <>
-                  New contract signed with <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span>
-                </>
-              );
-            } else if (activity.status === 'expired' || 
-                     (activity.end_date && new Date(activity.end_date).getTime() < new Date().getTime() + 30 * 24 * 60 * 60 * 1000)) {
-              // Contract expiring or expired
+              description = activity.description;
+              break;
+            case 'contract_expiring':
               icon = <AlertTriangle className="h-5 w-5 text-amber-500" />;
-              description = (
-                <>
-                  Contract with <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span> expires in 30 days
-                </>
-              );
-            } else {
-              // Default contract activity (document submitted)
+              description = activity.description;
+              break;
+            case 'document_uploaded':
+            case 'document_deleted':
               icon = <FileText className="h-5 w-5 text-blue-500" />;
-              description = (
-                <>
-                  Vendor <span className="font-medium">{activity.vendor_name || 'Unknown Vendor'}</span> submitted documents for review
-                </>
-              );
-            }
-          } else {
-            // Fallback for unknown activity types
-            icon = <FileText className="h-5 w-5 text-gray-500" />;
-            description = "Unknown activity";
+              description = activity.description;
+              break;
+            case 'profile_created':
+            case 'profile_updated':
+              icon = <Users className="h-5 w-5 text-purple-500" />;
+              description = activity.description;
+              break;
+            default:
+              icon = <FileText className="h-5 w-5 text-gray-500" />;
+              description = activity.description;
           }
 
           return (
             <div
-              key={`${activity.type}-${activity.id}`}
-              className="flex items-start gap-3 p-3"
+              key={activity.id}
+              className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <div className="mt-0.5">{icon}</div>
               <div className="flex-1">
-                <p className="text-gray-900">{description}</p>
-                <p className="text-sm text-gray-500">{timestamp}</p>
+                <p className="text-gray-900 dark:text-gray-100">{description || 'No description available'}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{timestamp}</p>
               </div>
             </div>
           );

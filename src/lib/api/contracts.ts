@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
 import { Database } from '@/types/supabase';
+import { ActivityType, logContractActivity } from './activity';
 
 export type Contract = Database['public']['Tables']['contracts']['Row'];
 export type ContractInsert = Database['public']['Tables']['contracts']['Insert'];
@@ -60,27 +61,40 @@ export async function createContract(contract: ContractInsert): Promise<ApiRespo
     // Explicitly construct the object for insertion
     const insertData = {
       title: contract.title,
-      vendor_id: contract.vendor_id, // Pass the UUID string directly
+      vendor_id: contract.vendor_id,
       description: contract.description,
       start_date: contract.start_date,
       end_date: contract.end_date,
       value: contract.value,
       status: contract.status,
-      created_by: userId // Add the user ID
+      created_by: userId
     };
 
     console.log("[createContract] Explicit insertData:", insertData);
 
     const { data, error } = await supabase
       .from('contracts')
-      .insert(insertData) // Use the explicitly constructed object
+      .insert(insertData)
       .select()
       .single();
 
     if (error) {
       console.error("[createContract] Supabase insert error details:", error);
-      throw error; // Re-throw to be caught by handleApiError
+      throw error;
     }
+
+    // Log the activity
+    await logContractActivity(
+      ActivityType.CONTRACT_CREATED,
+      data.id,
+      `New contract created: ${data.title}`,
+      {
+        vendor_id: data.vendor_id,
+        status: data.status,
+        value: data.value
+      }
+    );
+
     return data as Contract;
   });
 }
@@ -90,32 +104,83 @@ export async function updateContract(
   id: string,
   updates: ContractUpdate
 ): Promise<ApiResponse<Contract>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    // First get the current contract to compare changes
+    const { data: currentContract } = await supabase
+      .from('contracts')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (!currentContract) {
+      throw new Error('Contract not found');
+    }
+
+    // Then update the contract
+    const { data, error } = await supabase
       .from('contracts')
       .update(updates)
       .eq('id', id)
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Contract;
-      })
-  );
+      .single();
+      
+    if (error) throw error;
+
+    // Log the activity
+    const description = updates.status && updates.status !== currentContract.status
+      ? `Contract status changed from ${currentContract.status} to ${updates.status}`
+      : `Contract details updated: ${data.title}`;
+
+    await logContractActivity(
+      ActivityType.CONTRACT_UPDATED,
+      id,
+      description,
+      {
+        previous_status: currentContract.status,
+        new_status: updates.status,
+        changes: Object.keys(updates)
+      }
+    );
+
+    return data as Contract;
+  });
 }
 
 // Delete a contract
 export async function deleteContract(id: string): Promise<ApiResponse<null>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    // First get the contract details for the activity log
+    const { data: contract } = await supabase
+      .from('contracts')
+      .select('title, status, vendor_id')
+      .eq('id', id)
+      .single();
+
+    if (!contract) {
+      throw new Error('Contract not found');
+    }
+
+    // Then delete the contract
+    const { error } = await supabase
       .from('contracts')
       .delete()
-      .eq('id', id)
-      .then(({ error }) => {
-        if (error) throw error;
-        return null;
-      })
-  );
+      .eq('id', id);
+      
+    if (error) throw error;
+
+    // Log the activity
+    await logContractActivity(
+      ActivityType.CONTRACT_DELETED,
+      id,
+      `Contract deleted: ${contract.title}`,
+      {
+        status: contract.status,
+        vendor_id: contract.vendor_id
+      }
+    );
+
+    return null;
+  });
 }
 
 // Get total count of contracts

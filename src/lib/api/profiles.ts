@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
 import { Database } from '@/types/supabase';
+import { ActivityType, logUserActivity } from './activity';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
@@ -33,6 +34,15 @@ export async function updateProfile(updates: ProfileUpdate): Promise<ApiResponse
     if (authError) throw authError;
     if (!user) throw new Error('No authenticated user');
     
+    // First get the current profile to compare changes
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+      
+    if (!currentProfile) throw new Error('Profile not found');
+    
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -41,6 +51,19 @@ export async function updateProfile(updates: ProfileUpdate): Promise<ApiResponse
       .single();
       
     if (error) throw error;
+
+    // Log the activity
+    await logUserActivity(
+      ActivityType.PROFILE_UPDATED,
+      user.id,
+      `Profile updated`,
+      {
+        changes: Object.keys(updates),
+        previous_role: currentProfile.role_id,
+        new_role: updates.role_id
+      }
+    );
+
     return data as Profile;
   });
 }
@@ -62,8 +85,8 @@ export async function updateLastLogin(userId: string): Promise<ApiResponse<Profi
 
 // Create a profile for a new user (called after signup)
 export async function createProfile(userId: string, email: string): Promise<ApiResponse<Profile>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    const { data, error } = await supabase
       .from('profiles')
       .insert({
         id: userId,
@@ -71,10 +94,20 @@ export async function createProfile(userId: string, email: string): Promise<ApiR
         role_id: '60b1896f-ba73-45e1-878d-e49badca6f78' // Buyer role ID
       })
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Profile;
-      })
-  );
+      .single();
+      
+    if (error) throw error;
+
+    // Log the activity
+    await logUserActivity(
+      ActivityType.PROFILE_CREATED,
+      userId,
+      `New user profile created: ${email}`,
+      {
+        role_id: data.role_id
+      }
+    );
+
+    return data as Profile;
+  });
 } 

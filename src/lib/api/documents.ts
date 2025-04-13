@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
 import { Database } from '@/types/supabase';
+import { ActivityType, logDocumentActivity } from './activity';
 
 export type Document = Database['public']['Tables']['documents']['Row'];
 export type DocumentInsert = Database['public']['Tables']['documents']['Insert'];
@@ -50,6 +51,20 @@ export async function uploadDocument(
       .single();
       
     if (error) throw error;
+
+    // Log the activity
+    await logDocumentActivity(
+      ActivityType.DOCUMENT_UPLOADED,
+      data.id,
+      `New document uploaded: ${data.name}`,
+      {
+        entity_type: entityType,
+        entity_id: entityId,
+        file_type: file.type,
+        file_size: file.size
+      }
+    );
+
     return data as Document;
   });
 }
@@ -129,6 +144,19 @@ export async function deleteDocument(id: string): Promise<ApiResponse<null>> {
       .eq('id', id);
       
     if (deleteError) throw deleteError;
+
+    // Log the activity
+    await logDocumentActivity(
+      ActivityType.DOCUMENT_DELETED,
+      id,
+      `Document deleted: ${document.name}`,
+      {
+        entity_type: document.entity_type,
+        entity_id: document.entity_id,
+        file_type: document.file_type,
+        file_size: document.file_size
+      }
+    );
     
     return null;
   });

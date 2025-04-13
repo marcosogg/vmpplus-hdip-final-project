@@ -156,6 +156,41 @@ export interface Database {
           created_at?: string
         }
       }
+      activity_log: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string | null
+          activity_type: string
+          description: string
+          vendor_id: string | null
+          contract_id: string | null
+          document_id: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          activity_type: string
+          description: string
+          vendor_id?: string | null
+          contract_id?: string | null
+          document_id?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string | null
+          activity_type?: string
+          description?: string
+          vendor_id?: string | null
+          contract_id?: string | null
+          document_id?: string | null
+          metadata?: Json | null
+        }
+      }
     }
   }
 } 

@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { handleApiError } from './api-utils';
 import { ApiResponse } from '@/types/api';
 import { Database } from '@/types/supabase';
+import { ActivityType, logVendorActivity } from './activity';
 
 export type Vendor = Database['public']['Tables']['vendors']['Row'];
 export type VendorInsert = Database['public']['Tables']['vendors']['Insert'];
@@ -72,6 +73,15 @@ export async function createVendor(vendor: VendorInsert): Promise<ApiResponse<Ve
       .single();
       
     if (error) throw error;
+
+    // Log the activity
+    await logVendorActivity(
+      ActivityType.VENDOR_CREATED,
+      data.id,
+      `New vendor added: ${data.name}`,
+      { status: data.status }
+    );
+
     return data as Vendor;
   });
 }
@@ -81,32 +91,80 @@ export async function updateVendor(
   id: string,
   updates: VendorUpdate
 ): Promise<ApiResponse<Vendor>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    // First get the current vendor to compare changes
+    const { data: currentVendor } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (!currentVendor) {
+      throw new Error('Vendor not found');
+    }
+
+    // Then update the vendor
+    const { data, error } = await supabase
       .from('vendors')
       .update(updates)
       .eq('id', id)
       .select()
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error;
-        return data as Vendor;
-      })
-  );
+      .single();
+      
+    if (error) throw error;
+
+    // Log the activity
+    const description = updates.status && updates.status !== currentVendor.status
+      ? `Vendor status changed from ${currentVendor.status} to ${updates.status}`
+      : `Vendor details updated: ${data.name}`;
+
+    await logVendorActivity(
+      ActivityType.VENDOR_UPDATED,
+      id,
+      description,
+      {
+        previous_status: currentVendor.status,
+        new_status: updates.status,
+        changes: Object.keys(updates)
+      }
+    );
+
+    return data as Vendor;
+  });
 }
 
 // Delete a vendor
 export async function deleteVendor(id: string): Promise<ApiResponse<null>> {
-  return handleApiError(
-    supabase
+  return handleApiError(async () => {
+    // First get the vendor details for the activity log
+    const { data: vendor } = await supabase
+      .from('vendors')
+      .select('name, status')
+      .eq('id', id)
+      .single();
+
+    if (!vendor) {
+      throw new Error('Vendor not found');
+    }
+
+    // Then delete the vendor
+    const { error } = await supabase
       .from('vendors')
       .delete()
-      .eq('id', id)
-      .then(({ error }) => {
-        if (error) throw error;
-        return null;
-      })
-  );
+      .eq('id', id);
+      
+    if (error) throw error;
+
+    // Log the activity
+    await logVendorActivity(
+      ActivityType.VENDOR_DELETED,
+      id,
+      `Vendor deleted: ${vendor.name}`,
+      { status: vendor.status }
+    );
+
+    return null;
+  });
 }
 
 // Get total count of vendors

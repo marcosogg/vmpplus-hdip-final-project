@@ -451,8 +451,8 @@ export function LandingPage() {
               <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50" asChild>
                 <Link to="/signup">Get Started Free</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-blue-700" asChild>
-                <Link to="/contact">Request Demo</Link>
+              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10" asChild>
+                <Link to="/request-demo">Request Demo</Link>
               </Button>
             </div>
           </div>

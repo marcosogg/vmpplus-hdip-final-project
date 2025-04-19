@@ -7,7 +7,7 @@ export function VmpLogo({ className, ...props }: VmpLogoProps) {
     <img
       src="/images/vmp-logo-whitebg.png"
       alt="VMP+ Logo"
-      className={cn("", className)}
+      className={cn("h-auto w-auto", className)}
       {...props}
     />
   );

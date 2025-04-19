@@ -48,14 +48,14 @@ export function HeroSection({ className }: HeroSectionProps) {
               {/* Dashboard mockup */}
               <div className="relative">
                 <div className="relative rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-                  {/* Placeholder for dashboard image - in a real implementation, use an actual image */}
+                  {/* Professional image showcase */}
                   <div className="bg-white aspect-[16/10] flex items-center justify-center">
                     <img 
-                      src="/dashboard-mockup.png" 
-                      alt="VMP Plus Dashboard" 
-                      className="w-full h-auto"
+                      src="/two-professionals.png" 
+                      alt="Professionals using VMP Plus" 
+                      className="w-full h-full object-cover"
                       onError={(e) => {
-                        // Fallback to VMP Plus logo if dashboard mockup doesn't exist
+                        // Fallback to VMP Plus logo if image doesn't exist
                         const target = e.target as HTMLImageElement;
                         target.src = '/images/vmp-logo-master.png';
                         target.className = 'w-64 h-auto mx-auto'; // Center the logo and give it a reasonable size
